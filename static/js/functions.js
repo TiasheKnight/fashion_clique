@@ -1,46 +1,41 @@
 // User info login
 function loginUser() {
-  const form = document.getElementById('login-form');
-  const email = form['login-email'].value;
-  const password = form['login-password'].value;
-
-  if (email && password) {
-      // Show the loading popup
-      document.getElementById("loadingPopup").style.display = "flex";
-
-      // Send login data to Flask using AJAX
-      fetch('/login', {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email: email, password: password })
+    const emailElement = document.getElementById('login-email');
+    const passwordElement = document.getElementById('login-password');
+  
+    // Check if the elements exist
+    console.log(emailElement, passwordElement);
+  
+    const email = emailElement.value;
+    const password = passwordElement.value;
+  
+    if (!email || !password) {
+      alert('Please fill in both fields');
+      return;
+    }
+  
+    fetch('/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: email,
+        password: password
       })
-      .then(response => response.json())
-      .then(data => {
-          // Hide the loading popup
-          document.getElementById("loadingPopup").style.display = "none";
-
-          if (data.success) {
-              // Show the success popup
-              document.getElementById("successPopup").style.display = "flex";
-
-              // Redirect to the account page after 2 seconds
-              setTimeout(function() {
-                  window.location.href = "/account";  // Navigate to account page
-              }, 2000);
-          } else {
-              alert("Invalid login credentials.");
-          }
-      })
-      .catch(error => {
-          alert("An error occurred.");
-          console.log(error);
-      });
-  } else {
-      alert("Please fill in all login details.");
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.status === 'success') {
+        window.location.href = '/';
+      } else {
+        alert(data.message || 'Login failed. Please try again.');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
   }
-}
 
 // User logout
 function logoutUser() {
@@ -68,20 +63,31 @@ function logoutUser() {
 
 // Check if the user is logged in
 function checkLoginStatus() {
-  fetch('/check_login')
+    fetch('/check_login')
       .then(response => response.json())
       .then(data => {
           const accountLink = document.getElementById('accountLink');
+          
+          // Check if the user is logged in by looking at 'logged_in' status
           if (data.logged_in) {
               accountLink.href = "/account";  // Redirect to account page if logged in
+              accountLink.textContent = "Account";  // Optionally change the text to "Account"
           } else {
               accountLink.href = "/login_P";  // Redirect to login page if not logged in
+              accountLink.textContent = "Login";  // Change text to "Login"
           }
-      });
-}
-
-// Call checkLoginStatus when the page loads
-window.onload = checkLoginStatus;
+      })
+      .catch(error => console.error('Error checking login status:', error));
+  }
+  
+  // Call this function on page load or when necessary
+  checkLoginStatus();
+  
+// Call checkLoginStatus after the page loads
+window.onload = function() {
+    checkLoginStatus();
+};
+  
 
 // Register a new account
 function registerAccount() {
@@ -153,28 +159,31 @@ function showShippingPopup() {
 function closeShippingPopup() {
   document.getElementById("shippingPopup").style.display = "none";
 }
-function removeItem(productId) {
-    // Send the product ID to the server to remove it from the session
-    fetch('/remove_from_cart', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: 'product_id=' + productId,  // Send product ID in the body
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        // Reload the cart page to reflect the changes
-        window.location.reload();
-      } else {
-        alert('Failed to remove item');
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
+document.querySelectorAll('.remove-item').forEach(button => {
+    button.addEventListener('click', function(event) {
+        event.preventDefault();  // Prevent default form submission
+        const productId = this.getAttribute('data-product-id');  // Get product_id from button's data attribute
+        
+        // Send a POST request to remove the product from the cart
+        fetch('/remove_from_cart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: 'product_id=' + productId
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Optionally, update the cart page or show a success message
+            console.log('Product removed from cart!');
+            location.reload();  // Reload the page to reflect changes
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
     });
-  }
+});
+
 // Proceed to checkout after confirming shipping info
 function proceedToCheckout() {
   const name = document.getElementById("name").value;

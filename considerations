@@ -1,0 +1,104 @@
+Optional: Secure Password Storage (Using Hashing)
+To make the password handling more secure, you can hash passwords before storing them in the database and when verifying them. Here's how you can integrate it:
+
+Install werkzeug (if not already installed):
+
+bash
+Copy code
+pip install werkzeug
+Update the Login Route for Password Hashing:
+
+python
+Copy code
+from werkzeug.security import check_password_hash
+
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+
+    # Connect to the database
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    # Query to check if user with provided email exists
+    cursor.execute("SELECT id, username, password FROM users WHERE email = ?", (email,))
+    user = cursor.fetchone()
+
+    # Close the connection
+    conn.close()
+
+    # Check if user exists and the password matches
+    if user and check_password_hash(user[2], password):  # check the hashed password
+        # Store user details in session
+        session['user_id'] = user[0]
+        session['username'] = user[1]
+        session['email'] = email
+        return jsonify({'status': 'success', 'message': 'Login successful'})
+    else:
+        return jsonify({'status': 'error', 'message': 'Invalid email or password'}), 401
+In this case, you would hash the password when inserting it into the database using generate_password_hash:
+
+python
+Copy code
+from werkzeug.security import generate_password_hash
+
+hashed_password = generate_password_hash('plain_password_here')
+Conclusion:
+With this updated route, the login credentials are now verified against the users in your database. Let me know if you need any further adjustments!
+
+
+
+____________________________________
+check_login
+Request URL:
+http://127.0.0.1:5000/check_login
+Request Method:
+GET
+Status Code:
+200 OK
+Remote Address:
+127.0.0.1:5000
+Referrer Policy:
+strict-origin-when-cross-origin
+connection:
+close
+content-length:
+40
+content-type:
+application/json
+date:
+Tue, 17 Dec 2024 22:20:17 GMT
+server:
+Werkzeug/3.1.1 Python/3.9.15
+vary:
+Cookie
+accept:
+*/*
+accept-encoding:
+gzip, deflate, br, zstd
+accept-language:
+en,en-US;q=0.9,zh-TW;q=0.8,zh;q=0.7,ko;q=0.6
+connection:
+keep-alive
+cookie:
+session=.eJyrVkpOLCpRsopWMjRR0lEyNAURCBaCi0zE6iil5iZm5ihZKZUWpxY5gDl6yfm5QOnM4vic_PT01JT4zDwlq5Ki0lQdsKL4zBQlK0MIOy8xNxWqV6kWAFPAJLc.Z2H3Yg.qpAYb7qw8QqgPGrsF5_A8ngU5gQ
+host:
+127.0.0.1:5000
+referer:
+http://127.0.0.1:5000/index
+sec-ch-ua:
+"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"
+sec-ch-ua-mobile:
+?0
+sec-ch-ua-platform:
+"Windows"
+sec-fetch-dest:
+empty
+sec-fetch-mode:
+cors
+sec-fetch-site:
+same-origin
+user-agent:
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36

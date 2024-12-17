@@ -1,34 +1,63 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session
 import sqlite3
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 app.secret_key = 'whatever'  # Replace this with a more secure key in production
 
 @app.route('/')
 def home():
     return render_template('index.html')
 
+# Path to your database
+DB_PATH = 'static/db/fc.db'
+
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-    email = data['email']
-    password = data['password']
+    email = data.get('email')
+    password = data.get('password')
 
-    # This should be replaced with actual authentication logic (e.g., database lookup)
-    if email == 'test@example.com' and password == 'password':
-        session['logged_in'] = True
-        return jsonify({'success': True})
+    # Connect to the database
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    # Query the database to check for user credentials
+    cursor.execute("SELECT id, username, password FROM users WHERE email = ?", (email,))
+    user = cursor.fetchone()  # Fetch the user
+
+    conn.close()
+
+    # Check if the user exists and password matches
+    if user and user[2] == password:
+        session['user_id'] = user[0]  # Store user ID in session
+        session['username'] = user[1]  # Store username in session
+        session['email'] = email      # Store email in session
+        session['is_logged_in'] = True  # Explicitly mark as logged in
+        
+        # Return success response
+        return jsonify({'status': 'success', 'message': 'Login successful'})
     else:
-        return jsonify({'success': False})
+        return jsonify({'status': 'error', 'message': 'Invalid email or password'}), 401
+
+
+
     
 @app.route('/check_login')
 def check_login():
-    return jsonify({'logged_in': 'logged_in' in session})
+    # Check if 'is_logged_in' is in the session
+    if session.get('is_logged_in', False):  # Default to False if not found
+        return jsonify({'logged_in': True, 'user_id': session.get('user_id')})
+    else:
+        return jsonify({'logged_in': False})
+
+
+
+
 
 @app.route('/logout')
 def logout():
-    session.pop('logged_in', None)  # Remove 'logged_in' from session to log out
-    return redirect(url_for('home'))  # Redirect to the home page after logout
+    session.pop('email', None)  # Remove user from session
+    return redirect(url_for('login'))
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -46,7 +75,7 @@ def register():
 # Function to get products from the database with type filter
 def get_products(product_type):
     # Connect to the SQLite database
-    conn = sqlite3.connect('static/db/fc.db')
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
     # If a product type is provided, filter by type
@@ -138,18 +167,20 @@ def cart():
 
 
 
+@app.route('/remove_from_cart', methods=['POST'])
 def remove_from_cart():
-    product_id = request.form['product_id']
-    
-    # Ensure the cart exists in the session
+    product_id = request.form['product_id']  # Get the product_id from the form
+
+    # If the 'cart' exists in the session, we proceed to remove the item
     if 'cart' in session:
-        # Loop through the cart and remove the item with the matching product ID
-        session['cart'] = [item for item in session['cart'] if item['product_id'] != product_id]
-        session.modified = True  # Mark session as modified
+        # Remove the product_id from the session cart list
+        if product_id in session['cart']:
+            session['cart'].remove(product_id)
+            session.modified = True  # Ensure the session is updated
+            return jsonify({'status': 'success', 'message': 'Item removed'})
 
-    # Return a success message
-    return jsonify({'success': True})
-
+    # After removing, redirect back to the cart page
+    return jsonify({'status': 'error', 'message': 'Item not found'})
 
 @app.route('/account')
 def account():

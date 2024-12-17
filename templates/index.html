@@ -24,11 +24,12 @@
       integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ"
       crossorigin="anonymous"
     />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="{{ url_for('static', filename='css/vendor.css') }}"
-    />
+    <link rel="stylesheet" type="text/css" href="css/vendor.css" />
+    <!-- <link
+    rel="stylesheet"
+    type="text/css"
+    href="{{ url_for('static', filename='css/vendor.css') }}"
+  /> -->
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css"
@@ -38,10 +39,7 @@
       type="text/css"
       href="{{ url_for('static', filename='css/style.css') }}"
     />
-    <script
-      src="{{ url_for('static', filename='js/functions.js') }}"
-      defer
-    ></script>
+    <script src="{{ url_for('static', filename='js/functions.js') }}" defer></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -560,6 +558,7 @@
                     />
                   </a>
                 </div>
+
                 <div class="category-content">
                   <div class="product-button">
                     <a href="/top" class="btn btn-common text-uppercase"

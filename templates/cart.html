@@ -573,13 +573,10 @@
                   <td>${{ product['price'] }}</td>
                   <td>${{ product['total'] }}</td>
                   <td>
-                    <button
-                      class="btn btn-outline-dark btn-sm animate__animated animate__bounceIn"
-                      style="animation-delay: 0.2s"
-                      onclick="removeItem({{ product['id'] }})"
-                    >
+                    <button class="btn btn-outline-dark btn-sm animate__animated animate__bounceIn remove-item" data-product-id="{{ product['id'] }}">
                       Remove
                     </button>
+                    
                   </td>
                 </tr>
                 {% endfor %}
