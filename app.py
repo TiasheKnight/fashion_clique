@@ -18,49 +18,60 @@ DB_PATH = 'static/db/fc.db'
 
 @app.route('/login', methods=['POST'])
 def login():
-    data = request.get_json()
-    email = data.get('email')
-    password = data.get('password')
+    try:
+        data = request.get_json()  # Receive the data as JSON
+        email = data.get('email')
+        password = data.get('password')
 
-    # Connect to the database
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
+        # Validate the received data
+        if not email or not password:
+            return jsonify({'success': False, 'message': 'Email and password are required.'}), 400
 
-    # Query the database to check for user credentials
-    cursor.execute("SELECT id, username, password FROM users WHERE email = ?", (email,))
-    user = cursor.fetchone()  # Fetch the user
+        # Connect to the database
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
 
-    conn.close()
+        # Query the user based on the email
+        cursor.execute('SELECT * FROM users WHERE email = ?', (email,))
+        user = cursor.fetchone()
 
-    # Check if the user exists and password matches
-    if user and user[2] == password:
-        session['username'] = user[1]  # Store username in session
-        session['email'] = email      # Store email in session
-        session['is_logged_in'] = True  # Explicitly mark as logged in
+        if not user:
+            return jsonify({'success': False, 'message': 'User not found.'}), 404
+
+        stored_password_hash = user[3]  # Assuming password is in the 4th column in the 'users' table (index 3)
+
+        # Hash the entered password using the same hashing algorithm
+        hashed_password = hash_password(password)
+
+        # Check if the entered password matches the stored hash
+        if hashed_password == stored_password_hash:
+            # Store user data in the session (for logged-in users)
+            session['username'] = user[1]  # Assuming the username is in the second column
+            session['email'] = user[2]  # Assuming email is in the third column
+            session['is_logged_in'] = True
+            session.modified = True  # Ensure the session is marked as modified
+            
+            return jsonify({'success': True, 'message': 'Login successful!'}), 200, render_template('index.html')
+        else:
+            return jsonify({'success': False, 'message': 'Invalid password.'}), 401
         
-        # Return success response
-        return jsonify({'status': 'success', 'message': 'Login successful'})
-    else:
-        return jsonify({'status': 'error', 'message': 'Invalid email or password'}), 401
-
-
+    except Exception as e:
+        print(f"Error during login: {str(e)}")  # Log the actual error
+        return jsonify({'success': False, 'message': 'An error occurred during login.'}), 500
 
     
 @app.route('/check_login')
 def check_login():
     # Check if 'is_logged_in' is in the session
-    if session.get('is_logged_in'):  # Default to False if not found
+    if ((session.get('is_logged_in')) and (session.get('is_logged_in')==True)):  # Default to False if not found
         return jsonify({'logged_in': True, 'user_id': session.get('user_id')})
     else:
+        session['is_logged_in'] = False
         return jsonify({'logged_in': False})
-
-
-
-
 
 @app.route('/logout')
 def logout():
-    session['username'] = []
+    session['username'] = ['Apple']
     session['is_logged_in'] = False
     session.modified = True  # Mark the session as modified to ensure it is saved
     return redirect(url_for('login'))
@@ -94,16 +105,23 @@ def register():
         if existing_user:
             return jsonify({'success': False, 'message': 'Email already registered.'}), 400
 
-        # Insert the new user into the database
-        cursor.execute('''INSERT INTO users (username, email, password) 
-                          VALUES (?, ?, ?)''', (name, email, hashed_password))
+        # Get the current number of entries in the users table to set user_id
+        cursor.execute('SELECT COUNT(*) FROM users')
+        user_count = cursor.fetchone()[0]
+        user_id = user_count + 1  # Set the new user_id to the next available number
+
+        # Insert the new user into the database, including user_id
+        cursor.execute('''INSERT INTO users (id, username, email, password) 
+                          VALUES (?, ?, ?, ?)''', (user_id, name, email, hashed_password))
         conn.commit()
         conn.close()
 
         return jsonify({'success': True, 'message': 'Registration successful!'}), 200
 
     except Exception as e:
+        print(f"Error during registration: {str(e)}")  # Log the actual error
         return jsonify({'success': False, 'message': 'An error occurred during registration.'}), 500
+
 
     
 @app.route('/send_message', methods=['POST'])
@@ -316,6 +334,12 @@ def details():
     else:
         return jsonify({'status': 'error', 'message': 'User not found'}), 404
 
+import hashlib
+
+def hash_password(password: str) -> str:
+    """Hashes the given password using SHA256."""
+    return hashlib.sha256(password.encode('utf-8')).hexdigest()
+
 @app.route('/update_account', methods=['POST'])
 def update_account():
     if 'user_id' not in session:
@@ -333,21 +357,24 @@ def update_account():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
-    # Update the user data, if password is provided, update it too
+    # If a password is provided, hash it and update it
     if password:
-        cursor.execute("""
+        hashed_password = hash_password(password)
+        cursor.execute(""" 
             UPDATE users 
             SET username = ?, email = ?, phone = ?, password = ? 
-            WHERE id = ?
-        """, (name, email, phone, password, user_id))
+            WHERE id = ? 
+        """, (name, email, phone, hashed_password, user_id))
     else:
         cursor.execute("""
             UPDATE users 
             SET username = ?, email = ?, phone = ? 
-            WHERE id = ?
+            WHERE id = ? 
         """, (name, email, phone, user_id))
+    
+    # Update session values
     session['username'] = name  # Store username in session
-    session['email'] = email      # Store email in session
+    session['email'] = email    # Store email in session
 
     conn.commit()
 
@@ -364,6 +391,7 @@ def update_account():
             'phone': updated_user_data[2]
         }
     })
+
 
 
 @app.route('/account')

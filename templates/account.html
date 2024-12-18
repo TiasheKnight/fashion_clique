@@ -338,6 +338,9 @@
       inputs.forEach(input => input.disabled = false);
       saveBtn.disabled = false;
       editBtn.disabled = true;
+        // Clear the password field
+      const passwordInput = document.getElementById('account-password');
+      passwordInput.value = '';  // Clear the value of the password input
     });
   
     document.getElementById("account-form").addEventListener("submit", (e) => {

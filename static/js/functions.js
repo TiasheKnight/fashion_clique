@@ -41,7 +41,23 @@ function loginUser() {
 function logoutUser() {
   // Show the loading popup
   document.getElementById("loadingPopup").style.display = "flex";
-
+    // Send a GET request to the logout route
+    fetch('/logout', {
+      method: 'GET', // You can also use POST if needed
+  // })
+  // .then(response => {
+  //     if (response.ok) {
+  //         // After successful logout, redirect to the login page or update UI
+  //         window.location.href = '/login'; // Redirect to login page
+  //     } else {
+  //         alert('Logout failed. Please try again.');
+  //     }
+  // })
+  // .catch(error => {
+  //     console.error('Error during logout:', error);
+  //     alert('An error occurred during logout.');
+  });
+  
   // Simulate processing (loading) for 2 seconds
   setTimeout(function() {
       // Hide the loading popup
@@ -56,9 +72,9 @@ function logoutUser() {
       }, 2000);
   }, 2000);
 
-  // Simulate logout by clearing session data
-  sessionStorage.setItem('isLoggedIn', 'false');
-  window.location.href = "/login_P";  // Ensure redirection happens even if async delay is used
+  // // Simulate logout by clearing session data
+  // sessionStorage.setItem('isLoggedIn', 'false');
+  // window.location.href = "/login_P";  // Ensure redirection happens even if async delay is used
 }
 
 // Check if the user is logged in
