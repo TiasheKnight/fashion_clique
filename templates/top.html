@@ -735,6 +735,7 @@
           // Now get the product ID
           const productId =
             productContent.querySelector("#product_id").textContent;
+          const quantity = 1;
 
           // Send the product ID to the server (or add it to the session via AJAX or form submission)
           addToCart(productId, quantity);

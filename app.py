@@ -234,7 +234,6 @@ def get_cart():
 
 
 def clear_cart():
-    """Clears the cart from the session."""
     session['cart'] = []
     session.modified = True  # Mark the session as modified to ensure it is saved
 
