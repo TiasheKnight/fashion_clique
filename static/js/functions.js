@@ -80,9 +80,6 @@ function checkLoginStatus() {
       .catch(error => console.error('Error checking login status:', error));
   }
   
-  // Call this function on page load or when necessary
-  checkLoginStatus();
-  
 // Call checkLoginStatus after the page loads
 window.onload = function() {
     checkLoginStatus();
@@ -97,28 +94,37 @@ function registerAccount() {
   const password = form['register-password'].value;
   const cPassword = form['register-confirm-password'].value;
 
+  // Check if passwords match
   if (password !== cPassword) {
       alert("Passwords do not match.");
       return;
   }
 
+  // Check if all fields are filled
   if (name && email && password && cPassword) {
       // Show the loading popup
       document.getElementById("loadingPopup").style.display = "flex";
 
-      // Send registration data to Flask using AJAX
+      // Prepare data to send to Flask using AJAX (using JSON body)
+      const registrationData = {
+          name: name,
+          email: email,
+          password: password
+      };
+
       fetch('/register', {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ name: name, email: email, password: password })
+          body: JSON.stringify(registrationData)  // Send the registration data as JSON
       })
       .then(response => response.json())
       .then(data => {
           // Hide the loading popup
           document.getElementById("loadingPopup").style.display = "none";
 
+          // Check if registration was successful
           if (data.success) {
               // Show the success popup
               document.getElementById("successPopup").style.display = "flex";
@@ -128,17 +134,21 @@ function registerAccount() {
                   window.location.href = "/login_P";  // Navigate to login page
               }, 2000);
           } else {
-              alert("Registration failed. Please try again.");
+              // Show an error message if registration failed
+              alert("Registration failed. " + data.message);
           }
       })
       .catch(error => {
-          alert("An error occurred.");
+          // Show error if request fails
+          alert("An error occurred during registration. Please try again.");
           console.log(error);
       });
   } else {
+      // Alert the user if not all fields are filled
       alert("Please fill in all account details.");
   }
 }
+
 
 function sendMessage() {
   const fullName = document.getElementById('name').value;

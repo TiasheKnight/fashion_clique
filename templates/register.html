@@ -513,44 +513,50 @@
     >
       <div class="container">
         <div class="row justify-content-center">
-          <!-- Register Form -->
-          <div class="col-md-5 py-1 my-1">
-            <div class="auth-header text-center pb-3">
-              <h3 class="section-title text-uppercase">Register</h3>
-            </div>
-            <form id="register-form" class="d-flex flex-column gap-3">
-              <input
-                type="text"
-                name="register-name"
-                placeholder="Full Name"
-                class="form-control form-control-lg"
-                required
-              />
-              <input
-                type="email"
-                name="register-email"
-                placeholder="Email Address"
-                class="form-control form-control-lg"
-                required
-              />
-              <input
-                type="password"
-                name="register-password"
-                placeholder="Password"
-                class="form-control form-control-lg"
-                required
-              />
-              <input
-                type="password"
-                name="register-confirm-password"
-                placeholder="Confirm Password"
-                class="form-control form-control-lg"
-                required
-              />
-            </form>
-            <button class="btn btn-dark btn-lg text-uppercase w-100" onclick="registerAccount()">
-              Register
-            </button>
+<!-- Register Form -->
+<div class="col-md-5 py-1 my-1">
+  <div class="auth-header text-center pb-3">
+    <h3 class="section-title text-uppercase">Register</h3>
+  </div>
+  <form id="register-form" class="d-flex flex-column gap-3">
+    <input
+      type="text"
+      name="register-name"
+      id="register-name"
+      placeholder="Full Name"
+      class="form-control form-control-lg"
+      required
+    />
+    <input
+      type="email"
+      name="register-email"
+      id="register-email"
+      placeholder="Email Address"
+      class="form-control form-control-lg"
+      required
+    />
+    <input
+      type="password"
+      name="register-password"
+      id="register-password"
+      placeholder="Password"
+      class="form-control form-control-lg"
+      required
+    />
+    <input
+      type="password"
+      name="register-confirm-password"
+      id="register-confirm-password"
+      placeholder="Confirm Password"
+      class="form-control form-control-lg"
+      required
+    />
+  </form>
+  <button class="btn btn-dark btn-lg text-uppercase w-100" onclick="registerAccount()">
+    Register
+  </button>
+</div>
+
             <p class="text-center mt-3">
               Already have an account?
               <a href="/login_P" class="text-dark text-decoration-underline"

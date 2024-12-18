@@ -1,8 +1,13 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session
 import sqlite3
+import hashlib
 
 app = Flask(__name__, static_folder='static')
 app.secret_key = 'whatever'  # Replace this with a more secure key in production
+
+# Function to hash passwords securely
+def hash_password(password):
+    return hashlib.sha256(password.encode('utf-8')).hexdigest()
 
 @app.route('/')
 def home():
@@ -29,7 +34,6 @@ def login():
 
     # Check if the user exists and password matches
     if user and user[2] == password:
-        session['user_id'] = user[0]  # Store user ID in session
         session['username'] = user[1]  # Store username in session
         session['email'] = email      # Store email in session
         session['is_logged_in'] = True  # Explicitly mark as logged in
@@ -45,7 +49,7 @@ def login():
 @app.route('/check_login')
 def check_login():
     # Check if 'is_logged_in' is in the session
-    if session.get('is_logged_in', False):  # Default to False if not found
+    if session.get('is_logged_in'):  # Default to False if not found
         return jsonify({'logged_in': True, 'user_id': session.get('user_id')})
     else:
         return jsonify({'logged_in': False})
@@ -56,21 +60,51 @@ def check_login():
 
 @app.route('/logout')
 def logout():
-    session.pop('email', None)  # Remove user from session
+    session['username'] = []
+    session['is_logged_in'] = False
+    session.modified = True  # Mark the session as modified to ensure it is saved
     return redirect(url_for('login'))
 
 @app.route('/register', methods=['POST'])
 def register():
-    data = request.get_json()
-    name = data['name']
-    email = data['email']
-    password = data['password']
+    try:
+        # Get the data from the request as JSON
+        data = request.get_json()
 
-    # Simulate account creation (you can replace this with real logic)
-    if name and email and password:
-        return jsonify({'success': True})
-    else:
-        return jsonify({'success': False})
+        # Extract fields from the request data
+        name = data.get('name')
+        email = data.get('email')
+        password = data.get('password')
+
+        # Validate the received data
+        if not name or not email or not password:
+            return jsonify({'success': False, 'message': 'All fields are required.'}), 400
+
+        # Hash the password
+        hashed_password = hash_password(password)
+
+        # Create a new user in the database
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+
+        # Check if the email already exists
+        cursor.execute('SELECT * FROM users WHERE email = ?', (email,))
+        existing_user = cursor.fetchone()
+
+        if existing_user:
+            return jsonify({'success': False, 'message': 'Email already registered.'}), 400
+
+        # Insert the new user into the database
+        cursor.execute('''INSERT INTO users (username, email, password) 
+                          VALUES (?, ?, ?)''', (name, email, hashed_password))
+        conn.commit()
+        conn.close()
+
+        return jsonify({'success': True, 'message': 'Registration successful!'}), 200
+
+    except Exception as e:
+        return jsonify({'success': False, 'message': 'An error occurred during registration.'}), 500
+
     
 @app.route('/send_message', methods=['POST'])
 def send_message():
@@ -240,9 +274,6 @@ def cart():
     return render_template('cart.html', products=products, total_price=total_price)
 
 
-
-
-
 @app.route('/remove_from_cart', methods=['POST'])
 def remove_from_cart():
     product_id = int(request.form['product_id'])  # Get the product_id from the form and convert to integer
@@ -259,10 +290,85 @@ def remove_from_cart():
     # If product_id was not found in the cart
     return jsonify({'status': 'error', 'message': 'Item not found'})
 
+@app.route('/details') 
+def details():      
+    username = session['username']  # Get the logged-in user's name 
+    
+    # Connect to the database and fetch user details
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT username, email, phone FROM users WHERE username = ?", (username,))
+    user_data = cursor.fetchone()
+    
+    conn.close()
+    
+    if user_data:
+        # Return the user data to the frontend as a JSON response
+        return jsonify({
+            'status': 'success',
+            'user_data': {
+                'name': user_data[0],
+                'email': user_data[1],
+                'phone': user_data[2]
+            }
+        })
+    else:
+        return jsonify({'status': 'error', 'message': 'User not found'}), 404
+
+@app.route('/update_account', methods=['POST'])
+def update_account():
+    if 'user_id' not in session:
+        return jsonify({'status': 'error', 'message': 'You must be logged in to update your account.'}), 401
+
+    # Get the updated data from the form submission
+    name = request.form.get('name')
+    email = request.form.get('email')
+    phone = request.form.get('phone')
+    password = request.form.get('password')
+
+    user_id = session['user_id']
+
+    # Connect to the database and update the user details
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    # Update the user data, if password is provided, update it too
+    if password:
+        cursor.execute("""
+            UPDATE users 
+            SET username = ?, email = ?, phone = ?, password = ? 
+            WHERE id = ?
+        """, (name, email, phone, password, user_id))
+    else:
+        cursor.execute("""
+            UPDATE users 
+            SET username = ?, email = ?, phone = ? 
+            WHERE id = ?
+        """, (name, email, phone, user_id))
+    session['username'] = name  # Store username in session
+    session['email'] = email      # Store email in session
+
+    conn.commit()
+
+    # Fetch the updated data to return to the client
+    cursor.execute("SELECT username, email, phone FROM users WHERE id = ?", (user_id,))
+    updated_user_data = cursor.fetchone()
+    conn.close()
+
+    return jsonify({
+        'status': 'success',
+        'user_data': {
+            'name': updated_user_data[0],
+            'email': updated_user_data[1],
+            'phone': updated_user_data[2]
+        }
+    })
+
 
 @app.route('/account')
 def account():
-    if 'logged_in' not in session:
+    if 'is_logged_in' not in session:
         return redirect(url_for('login_P'))  # Redirect to login if not logged in
     return render_template('account.html')
 
