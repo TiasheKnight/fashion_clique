@@ -119,9 +119,10 @@ def submit_order():
     conn.close()
 
     # Clear the cart after placing an order
-    session['cart'] = []
+    clear_cart()
 
     return jsonify({'status': 'success', 'message': 'Order placed successfully!'})
+
 
 
     
@@ -142,13 +143,33 @@ def get_products(product_type):
 @app.route('/add_to_cart', methods=['POST'])
 def add_to_cart():
     product_id = request.form['product_id']  # Get the product_id from the form
+    quantity = 1  # Default quantity if not specified
+    if 'quantity' in request.form:
+        quantity = int(request.form['quantity'])  # Get the quantity if specified
+    
     if 'cart' not in session:
         session['cart'] = []  # Initialize the cart if it doesn't exist
     
-    session['cart'].append(product_id)  # Add product ID to the cart
+    # Check if product already exists in the cart
+    product_found = False
+    for item in session['cart']:
+        if isinstance(item, dict) and item.get('product_id') == int(product_id):
+            item['quantity'] += quantity  # Update the quantity if the product is already in the cart
+            product_found = True
+            break
+    
+    if not product_found:
+        # Add new product to the cart with the specified quantity
+        session['cart'].append({"product_id": int(product_id), "quantity": quantity})
+
     session.modified = True  # Mark session as modified to ensure changes are saved
     print(session)
     return jsonify({'success': True, 'cart': session['cart']})
+
+def clear_cart():
+    """Clears the cart from the session."""
+    session['cart'] = []
+    session.modified = True  # Mark the session as modified to ensure it is saved
 
 
 
@@ -178,7 +199,7 @@ def update_quantity():
 
 @app.route('/cart')
 def cart():
-    # Retrieve product_ids stored in the session
+    # Retrieve cart items (which are dictionaries with 'product_id' and 'quantity')
     cart_items = session.get('cart', [])
     
     # Fetch product details from the database
@@ -189,19 +210,20 @@ def cart():
     conn = sqlite3.connect('static/db/fc.db')
     cursor = conn.cursor()
 
-    for product_id in cart_items:
+    for item in cart_items:
+        product_id = item['product_id']  # Extract product_id from the dictionary
+
         cursor.execute("SELECT * FROM products WHERE id = ?", (product_id,))
         product = cursor.fetchone()
-        
+
         if product:
             product_name = product[1]
             product_price = product[3]
             product_image = product[4]
             
-            # Assuming you're keeping track of the quantity in the session as well
-            # If not, you can hardcode it as 1 for now
-            quantity = 1  # Or fetch quantity if you store it in the session
-            
+            # Get the quantity from the cart item (instead of hardcoding it)
+            quantity = item['quantity']
+
             total_price += product_price * quantity  # Calculate total price
 
             products.append({
@@ -220,20 +242,23 @@ def cart():
 
 
 
+
 @app.route('/remove_from_cart', methods=['POST'])
 def remove_from_cart():
-    product_id = request.form['product_id']  # Get the product_id from the form
+    product_id = int(request.form['product_id'])  # Get the product_id from the form and convert to integer
 
     # If the 'cart' exists in the session, we proceed to remove the item
     if 'cart' in session:
-        # Remove the product_id from the session cart list
-        if product_id in session['cart']:
-            session['cart'].remove(product_id)
-            session.modified = True  # Ensure the session is updated
-            return jsonify({'status': 'success', 'message': 'Item removed'})
+        # Loop through the cart to find the item with the matching product_id
+        for item in session['cart']:
+            if item['product_id'] == product_id:
+                session['cart'].remove(item)  # Remove the product object from the cart
+                session.modified = True  # Ensure the session is updated
+                return jsonify({'status': 'success', 'message': 'Item removed'})
 
-    # After removing, redirect back to the cart page
+    # If product_id was not found in the cart
     return jsonify({'status': 'error', 'message': 'Item not found'})
+
 
 @app.route('/account')
 def account():

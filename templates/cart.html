@@ -589,7 +589,7 @@
                   <td>
                     <button
                       class="btn btn-dark btn-sm text-uppercase px-3 animate__animated animate__pulse animate__infinite"
-                      onclick="showShippingPopup()"
+                      onclick="proceedToCheckout()"
                     >
                       Checkout
                     </button>
@@ -632,7 +632,7 @@
         </div>
 
         <!-- Buttons -->
-        <button class="btn btn-dark" onclick="proceedToCheckout()">
+        <button class="btn btn-dark" onclick="Checkout()">
           Confirm and Checkout
         </button>
         <button class="btn btn-outline-dark" onclick="closeShippingPopup()">
@@ -684,7 +684,7 @@
       </div>
     </div>
 
-    <script>
+    <!-- <script>
       document.querySelectorAll('.update-quantity').forEach(input => {
     input.addEventListener('change', function() {
         const productId = this.getAttribute('data-product-id');  // Get product ID
@@ -713,7 +713,7 @@
     });
 });
 
-    </script>
+    </script> -->
 
     <!-- Add Animate.css for animations -->
     <link

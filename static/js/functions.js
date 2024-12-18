@@ -211,28 +211,57 @@ document.querySelectorAll('.remove-item').forEach(button => {
 });
 
 // Proceed to checkout after confirming shipping info
-function proceedToCheckout() {
+function Checkout() {
   const name = document.getElementById("name").value;
   const address = document.getElementById("address").value;
   const phone = document.getElementById("phone").value;
 
   if (name && address && phone) {
-      closeShippingPopup();
-      // showShippingPopup()
+      closeShippingPopup();  // Close the shipping details popup
+      
+      // Show the loading popup
       document.getElementById("loadingPopup").style.display = "flex";
 
-      setTimeout(function() {
-          document.getElementById("loadingPopup").style.display = "none";
-          document.getElementById("successPopup").style.display = "flex";
+      // Prepare the order data to send to the backend
+      const orderData = {
+          address: address,
+          phone: phone
+      };
 
-          setTimeout(function() {
-              window.location.href = "/";  // Navigate to checkout page
-          }, 2000);
-      }, 2000);
+      // Send the order details to the backend using fetch
+      fetch('/submit_order', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(orderData)  // Send order data as JSON
+      })
+      .then(response => response.json())
+      .then(data => {
+          // If the order is successful, show success popup
+          if (data.status === 'success') {
+              setTimeout(function() {
+                  document.getElementById("loadingPopup").style.display = "none";  // Hide loading popup
+                  document.getElementById("successPopup").style.display = "flex";  // Show success popup
+
+                  // Redirect to the home page or another page after a short delay
+                  setTimeout(function() {
+                      window.location.href = "/";  // Navigate to the home page or any other page
+                  }, 2000);
+              }, 2000);
+          } else {
+              alert("There was an error with your order. Please try again.");
+          }
+      })
+      .catch(error => {
+          console.error('Error:', error);
+          alert("An error occurred while placing the order.");
+      });
   } else {
       alert("Please fill in all shipping details.");
   }
 }
+
 
 // Newsletter submission
 function newsletter() {
