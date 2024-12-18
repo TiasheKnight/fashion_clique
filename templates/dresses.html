@@ -511,7 +511,9 @@
           <div class="col-auto">
             <ul class="navbar-nav d-flex flex-row gap-4">
               <li class="nav-item">
-                <a class="nav-link" href="/cart">Cart</a>
+                <a class="nav-link active" href="/cart">
+                  <span id="cartCount" class="cart-circle">0</span> Cart
+                </a>
               </li>
               <li class="nav-item">
                 <a id="accountLink" class="nav-link" href="#">Account</a>
@@ -724,34 +726,42 @@
       </div>
     </footer>
     <script>
-document.querySelectorAll(".add-to-cart").forEach((button) => {
-  button.addEventListener("click", function () {
-    // Find the closest product content by navigating up the DOM
-    const productContent = this.previousElementSibling; // The previous sibling should be the .product-content
+      document.querySelectorAll(".add-to-cart").forEach((button) => {
+        button.addEventListener("click", function () {
+          // Find the closest product content by navigating up the DOM
+          const productContent = this.previousElementSibling; // The previous sibling should be the .product-content
 
-    // Now get the product ID and quantity (you may want to fetch the quantity from an input field, or hardcode it)
-    const productId = productContent.querySelector("#product_id").textContent;
-    const quantity = 1; // Or get the quantity from a field like: productContent.querySelector("#quantity").value;
+          // Now get the product ID and quantity (you may want to fetch the quantity from an input field, or hardcode it)
+          const productId =
+            productContent.querySelector("#product_id").textContent;
+          const quantity = 1; // Or get the quantity from a field like: productContent.querySelector("#quantity").value;
 
-    // Send the product ID and quantity to the server
-    fetch("/add_to_cart", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: "product_id=" + productId + "&quantity=" + quantity,
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Product added to cart!");
-      })
-      .catch((error) => {
-        console.error("Error:", error);
+          // Send the product ID and quantity to the server
+          addToCart(productId, quantity)
+        });
       });
-  });
-});
-
     </script>
+    <script>
+      // Function to fetch cart count from the backend
+      function updateCartCount() {
+        // Fetch the cart data from the backend
+        fetch('/get_cart')
+          .then(response => response.json())
+          .then(data => {
+            // Get the number of items in the cart
+            const cartCount = data.cart.length;
+      
+            // Update the cart count on the page
+            document.getElementById("cartCount").innerText = cartCount;
+          })
+          .catch(error => {
+            console.error('Error fetching cart data:', error);
+          });
+      }
+      
+      // Call the function when the page loads
+      document.addEventListener('DOMContentLoaded', updateCartCount);
+      </script>
 
     <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/plugins.js') }}"></script>

@@ -26,14 +26,15 @@ function loginUser() {
     })
     .then(response => response.json())
     .then(data => {
-      if (data.status === 'success') {
-        window.location.href = '/';
-      } else {
-        alert(data.message || 'Login failed. Please try again.');
-      }
+        if (data.success) {
+            // Redirect to homepage
+            window.location.href = '/'; // Or to a dashboard page
+        } else {
+            alert(data.message); // Show error message if login fails
+        }
     })
     .catch(error => {
-      console.error('Error:', error);
+        console.error('Error:', error);
     });
   }
 
@@ -201,11 +202,57 @@ function removeItem(button) {
       row.remove();
   }, 500); // Delay for animation
 }
+  
+// Function to update the cart count in the circle
+function updateCartCount(count) {
+  document.getElementById("cartCount").innerText = count;
+}
+
+// Adding a product to the cart
+function addToCart(productId, quantity) {
+  // Send the request to the backend to add the product to the cart
+  fetch('/add_to_cart', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: new URLSearchParams({
+      'product_id': productId,
+      'quantity': quantity
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      // Update the cart count in the circle after the product is added to the cart
+      updateCartCount(data.cart_count);
+    }
+  })
+  .catch(error => {
+    console.error('Error adding to cart:', error);
+  });
+}
 
 // Show shipping confirmation popup
 function showShippingPopup() {
-  document.getElementById("shippingPopup").style.display = "flex";
+    // Check if user_id is in the session
+    fetch('/check_login')  // Assuming '/check_login' checks if the user is logged in
+    .then(response => response.json())
+    .then(data => {
+        if (data.logged_in) {
+    document.getElementById("shippingPopup").style.display = "flex";
+} else {
+    // User is not logged in, alert and redirect to login page
+    alert('Please log in first');
+    window.location.href = '/login';
 }
+})
+.catch(error => {
+console.error('Error:', error);
+alert('Something went wrong. Please try again later.');
+});
+}
+
 
 // Close shipping popup
 function closeShippingPopup() {

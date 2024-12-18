@@ -273,11 +273,12 @@
         <div class="col-auto">
           <ul class="navbar-nav d-flex flex-row gap-4">
             <li class="nav-item">
-              <a class="nav-link" href="/cart">Cart</a>
+              <a class="nav-link active" href="/cart">
+                <span id="cartCount" class="cart-circle">0</span> Cart
+              </a>
             </li>
             <li class="nav-item">
               <a id="accountLink" class="nav-link" href="#">Account</a>
-
             </li>
           </ul>
         </div>
@@ -295,35 +296,35 @@
           <form id="account-form">
             <div class="mb-4 text-center">
               <h5>Welcome, {{ session['username'] }}</h5>
-
-            <!-- Personal Information -->
-            <h6 class="text-uppercase text-muted mb-3">Personal Information</h6>
-            <div class="mb-3">
-                <label for="account-name" class="form-label">Full Name</label>
-                <input type="text" class="form-control" id="account-name" value="John Doe" disabled>
-            </div>
-            <div class="mb-3">
-                <label for="account-email" class="form-label">Email Address</label>
-                <input type="email" class="form-control" id="account-email" value="john@example.com" disabled>
-            </div>
-
-            <!-- Account Settings -->
-            <h6 class="text-uppercase text-muted mb-3">Account Settings</h6>
-            <div class="mb-3">
-                <label for="account-password" class="form-label">Password</label>
-                <input type="password" class="form-control" id="account-password" value="••••••••" disabled>
-            </div>
-            <div class="mb-3">
-                <label for="account-phone" class="form-label">Phone Number</label>
-                <input type="text" class="form-control" id="account-phone" value="123-456-7890" disabled>
-            </div>
-
-            <div class="d-flex justify-content-between align-items-center mt-4">
-                <button type="button" class="btn btn-outline-dark btn-lg" id="edit-btn">Edit</button>
-                <button type="submit" class="btn btn-dark btn-lg" id="save-btn" disabled>Save Changes</button>
-                <button type="button" class="btn btn-outline-danger btn-lg" onclick="logoutUser()">Logout</button>
-            </div>
-          </form>
+  
+              <!-- Personal Information -->
+              <h6 class="text-uppercase text-muted mb-3">Personal Information</h6>
+              <div class="mb-3">
+                  <label for="account-name" class="form-label">Full Name</label>
+                  <input type="text" class="form-control" id="account-name" value="{{ user_data[0] }}" disabled>
+              </div>
+              <div class="mb-3">
+                  <label for="account-email" class="form-label">Email Address</label>
+                  <input type="email" class="form-control" id="account-email" value="{{ user_data[1] }}" disabled>
+              </div>
+  
+              <!-- Account Settings -->
+              <h6 class="text-uppercase text-muted mb-3">Account Settings</h6>
+              <div class="mb-3">
+                  <label for="account-password" class="form-label">Password</label>
+                  <input type="password" class="form-control" id="account-password" value="••••••••" disabled>
+              </div>
+              <div class="mb-3">
+                  <label for="account-phone" class="form-label">Phone Number</label>
+                  <input type="text" class="form-control" id="account-phone" value="{{ user_data[2] }}" disabled>
+              </div>
+  
+              <div class="d-flex justify-content-between align-items-center mt-4">
+                  <button type="button" class="btn btn-outline-dark btn-lg" id="edit-btn">Edit</button>
+                  <button type="submit" class="btn btn-dark btn-lg" id="save-btn" disabled>Save Changes</button>
+                  <button type="button" class="btn btn-outline-danger btn-lg" onclick="logoutUser()">Logout</button>
+              </div>
+            </form>
         </div>
       </div>
     </div>
@@ -376,28 +377,6 @@
     </div>
   </div>
   </div>
-  <script>
-window.onload = function() {
-    fetch('/details')
-        .then(response => response.json())
-        .then(data => {
-            console.log(data);  // Check if data is returned correctly
-            if (data.status === 'success') {
-                // Populate form fields with user data
-                document.getElementById('account-name').value = data.user_data.name;
-                document.getElementById('account-email').value = data.user_data.email;
-                document.getElementById('account-phone').value = data.user_data.phone;
-                
-                // Update the greeting text
-                document.querySelector('h5').textContent = `Welcome, ${data.user_data.name}`;
-            } else {
-                alert('User data could not be loaded.');
-            }
-        })
-        .catch(error => console.error('Error fetching user data:', error));
-}
-
-  </script>
   <script>
     document.getElementById("edit-btn").addEventListener("click", function () {
     // Enable input fields and the save button
@@ -462,7 +441,27 @@ document.getElementById("save-btn").addEventListener("click", function () {
 });
 
   </script>
-
+<script>
+  // Function to fetch cart count from the backend
+  function updateCartCount() {
+    // Fetch the cart data from the backend
+    fetch('/get_cart')
+      .then(response => response.json())
+      .then(data => {
+        // Get the number of items in the cart
+        const cartCount = data.cart.length;
+  
+        // Update the cart count on the page
+        document.getElementById("cartCount").innerText = cartCount;
+      })
+      .catch(error => {
+        console.error('Error fetching cart data:', error);
+      });
+  }
+  
+  // Call the function when the page loads
+  document.addEventListener('DOMContentLoaded', updateCartCount);
+  </script>
   
   <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
   <script src="{{ url_for('static', filename='js/plugins.js') }}"></script>

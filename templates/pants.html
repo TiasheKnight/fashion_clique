@@ -273,11 +273,12 @@
         <div class="col-auto">
           <ul class="navbar-nav d-flex flex-row gap-4">
             <li class="nav-item">
-              <a class="nav-link" href="/cart">Cart</a>
+              <a class="nav-link active" href="/cart">
+                <span id="cartCount" class="cart-circle">0</span> Cart
+              </a>
             </li>
             <li class="nav-item">
               <a id="accountLink" class="nav-link" href="#">Account</a>
-
             </li>
           </ul>
         </div>
@@ -468,23 +469,31 @@
           productContent.querySelector("#product_id").textContent;
 
         // Send the product ID to the server (or add it to the session via AJAX or form submission)
-        fetch("/add_to_cart", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          body: "product_id=" + productId,
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            console.log("Product added to cart!");
-          })
-          .catch((error) => {
-            console.error("Error:", error);
-          });
+        addToCart(productId, quantity)
       });
     });
   </script>
+  <script>
+    // Function to fetch cart count from the backend
+    function updateCartCount() {
+      // Fetch the cart data from the backend
+      fetch('/get_cart')
+        .then(response => response.json())
+        .then(data => {
+          // Get the number of items in the cart
+          const cartCount = data.cart.length;
+    
+          // Update the cart count on the page
+          document.getElementById("cartCount").innerText = cartCount;
+        })
+        .catch(error => {
+          console.error('Error fetching cart data:', error);
+        });
+    }
+    
+    // Call the function when the page loads
+    document.addEventListener('DOMContentLoaded', updateCartCount);
+    </script>
 
   <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
   <script src="{{ url_for('static', filename='js/plugins.js') }}"></script>

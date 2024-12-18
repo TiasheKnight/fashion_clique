@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session
+import json  
 import sqlite3
 import hashlib
 
@@ -11,6 +12,7 @@ def hash_password(password):
 
 @app.route('/')
 def home():
+
     return render_template('index.html')
 
 # Path to your database
@@ -46,12 +48,15 @@ def login():
         # Check if the entered password matches the stored hash
         if hashed_password == stored_password_hash:
             # Store user data in the session (for logged-in users)
-            session['username'] = user[1]  # Assuming the username is in the second column
-            session['email'] = user[2]  # Assuming email is in the third column
+            session['user_id'] = user[1]
+            session['username'] = user[2]  # Assuming the username is in the second column
+            session['email'] = user[4]  # Assuming email is in the third column
+            session['phone'] = user[5]
+            session['address'] = user[6]
             session['is_logged_in'] = True
             session.modified = True  # Ensure the session is marked as modified
             
-            return jsonify({'success': True, 'message': 'Login successful!'}), 200, render_template('index.html')
+            return jsonify({'success': True, 'message': 'Login successful!'}), 200
         else:
             return jsonify({'success': False, 'message': 'Invalid password.'}), 401
         
@@ -63,7 +68,7 @@ def login():
 @app.route('/check_login')
 def check_login():
     # Check if 'is_logged_in' is in the session
-    if ((session.get('is_logged_in')) and (session.get('is_logged_in')==True)):  # Default to False if not found
+    if (session.get('is_logged_in') and (session.get('is_logged_in')==True)):  # Default to False if not found
         return jsonify({'logged_in': True, 'user_id': session.get('user_id')})
     else:
         session['is_logged_in'] = False
@@ -215,8 +220,18 @@ def add_to_cart():
         session['cart'].append({"product_id": int(product_id), "quantity": quantity})
 
     session.modified = True  # Mark session as modified to ensure changes are saved
-    print(session)
-    return jsonify({'success': True, 'cart': session['cart']})
+
+    # Get the number of unique products in the cart
+    cart_count = len(session['cart'])
+
+    # Return the updated cart and cart count
+    return jsonify({'success': True, 'cart': session['cart'], 'cart_count': cart_count})
+
+@app.route('/get_cart', methods=['GET'])
+def get_cart():
+    cart = session.get('cart', [])
+    return jsonify({'cart': cart})
+
 
 def clear_cart():
     """Clears the cart from the session."""
@@ -289,6 +304,7 @@ def cart():
 
     conn.close()  # Close the database connection
 
+
     return render_template('cart.html', products=products, total_price=total_price)
 
 
@@ -310,17 +326,18 @@ def remove_from_cart():
 
 @app.route('/details') 
 def details():      
+    print(f"Session data: {session}") 
     username = session['username']  # Get the logged-in user's name 
     
     # Connect to the database and fetch user details
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
-    cursor.execute("SELECT username, email, phone FROM users WHERE username = ?", (username,))
+    cursor.execute("SELECT username, email, phone, address FROM users WHERE username = ?", (username,))
     user_data = cursor.fetchone()
     
     conn.close()
-    
+    print(f"User data: {user_data}") 
     if user_data:
         # Return the user data to the frontend as a JSON response
         return jsonify({
@@ -328,7 +345,8 @@ def details():
             'user_data': {
                 'name': user_data[0],
                 'email': user_data[1],
-                'phone': user_data[2]
+                'phone': user_data[2],
+                'address': user_data[3]
             }
         })
     else:
@@ -394,11 +412,30 @@ def update_account():
 
 
 
-@app.route('/account')
+@app.route('/account', methods=['GET'])
 def account():
-    if 'is_logged_in' not in session:
-        return redirect(url_for('login_P'))  # Redirect to login if not logged in
-    return render_template('account.html')
+    if 'user_id' not in session:
+        return redirect('/login_P')  # Redirect to login page if not logged in
+    
+    user_id = session['user_id']  # Get the logged-in user's ID
+    
+    # Connect to the database and fetch user details
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT username, email, phone FROM users WHERE user_id = ?", (user_id,))
+    user_data = cursor.fetchone()
+    
+    conn.close()
+    
+    # Debugging: Check if the user data is being retrieved
+    print(f"User data: {user_data}")
+    if user_data:
+        # Render the account page with user data
+        return render_template('account.html', user_data=user_data)
+    else:
+        return render_template('error.html', message="User not found")
+    
 
 # Route for the register page
 @app.route('/register_P')

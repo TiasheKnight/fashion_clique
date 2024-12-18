@@ -1926,3 +1926,18 @@ a.btn-link.text-light:after {
   opacity: 0.8;
   transition: opacity 0.3s ease;
 }
+.error-message {
+  font-size: 20px;
+}
+.cart-circle {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: black;
+  color: white;
+  text-align: center;
+  font-size: 12px;
+  line-height: 20px; /* This ensures the number is vertically centered */
+  margin-right: 8px; /* Adds some space between the circle and the word "Cart" */
+}
