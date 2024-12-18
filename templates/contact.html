@@ -584,7 +584,7 @@
           <div class="col-lg-6">
             <div class="bg-white p-4 rounded shadow-sm h-100">
               <h5 class="text-uppercase mb-4">Send Us a Message</h5>
-              <form>
+              <form onsubmit="event.preventDefault(); sendMessage();">
                 <div class="mb-3">
                   <label for="name" class="form-label">Full Name</label>
                   <input
@@ -609,12 +609,15 @@
                   <label for="message" class="form-label">Message</label>
                   <textarea
                     id="message"
-                    rows="5"
                     class="form-control"
+                    rows="5"
                     placeholder="Your Message"
                     required
                   ></textarea>
                 </div>
+                <button type="submit" class="btn btn-primary text-uppercase">
+                  Send Message
+                </button>
               </form>
               <button
                 type="submit"

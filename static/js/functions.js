@@ -140,6 +140,32 @@ function registerAccount() {
   }
 }
 
+function sendMessage() {
+  const fullName = document.getElementById('name').value;
+  const email = document.getElementById('email').value;
+  const message = document.getElementById('message').value;
+
+  fetch('/send_message', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      full_name: fullName,
+      email: email,
+      message: message,
+    }),
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.status === 'success') {
+      alert(data.message);
+      document.querySelector('form').reset();
+    } else {
+      alert('Error: ' + data.message);
+    }
+  })
+  .catch(error => console.error('Error:', error));
+}
+
 // Remove item from the list (example for cart or other list management)
 function removeItem(button) {
   var row = button.closest('tr');
@@ -192,7 +218,7 @@ function proceedToCheckout() {
 
   if (name && address && phone) {
       closeShippingPopup();
-
+      // showShippingPopup()
       document.getElementById("loadingPopup").style.display = "flex";
 
       setTimeout(function() {
@@ -200,7 +226,7 @@ function proceedToCheckout() {
           document.getElementById("successPopup").style.display = "flex";
 
           setTimeout(function() {
-              window.location.href = "/checkout";  // Navigate to checkout page
+              window.location.href = "/";  // Navigate to checkout page
           }, 2000);
       }, 2000);
   } else {

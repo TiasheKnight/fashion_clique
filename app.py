@@ -72,6 +72,59 @@ def register():
     else:
         return jsonify({'success': False})
     
+@app.route('/send_message', methods=['POST'])
+def send_message():
+    data = request.get_json()
+    full_name = data.get('full_name')
+    email = data.get('email')
+    message = data.get('message')
+
+    if not full_name or not email or not message:
+        return jsonify({'status': 'error', 'message': 'All fields are required'}), 400
+
+    # Insert into database
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO messages (full_name, email, message) VALUES (?, ?, ?)",
+            (full_name, email, message)
+        )
+        conn.commit()
+        conn.close()
+        return jsonify({'status': 'success', 'message': 'Message sent successfully!'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+
+@app.route('/submit_order', methods=['POST'])
+def submit_order():
+    if 'user_id' not in session:
+        return jsonify({'status': 'error', 'message': 'You must be logged in to place an order.'}), 401
+
+    data = request.get_json()
+    address = data.get('address')
+    phone = data.get('phone')
+    products = json.dumps(session.get('cart', []))  # Convert cart to JSON string
+    user_id = session['user_id']
+
+    # Insert order into database
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO orders (user_id, products, address, phone)
+        VALUES (?, ?, ?, ?)
+    """, (user_id, products, address, phone))
+    conn.commit()
+    conn.close()
+
+    # Clear the cart after placing an order
+    session['cart'] = []
+
+    return jsonify({'status': 'success', 'message': 'Order placed successfully!'})
+
+
+    
 # Function to get products from the database with type filter
 def get_products(product_type):
     # Connect to the SQLite database
@@ -94,7 +147,7 @@ def add_to_cart():
     
     session['cart'].append(product_id)  # Add product ID to the cart
     session.modified = True  # Mark session as modified to ensure changes are saved
-    
+    print(session)
     return jsonify({'success': True, 'cart': session['cart']})
 
 

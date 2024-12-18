@@ -22,6 +22,13 @@ CSS STRUCTURE:
 2. GENERAL TYPOGRAPHY
 
 --------------------------------------------------------------*/
+/* .row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: -15px;
+  margin-left: -15px;
+} */
+
 body {
   --heading-font: "Marcellus", Roboto, sans-serif;
   --heading-font-weight: 400;
@@ -1886,6 +1893,7 @@ a.btn-link.text-light:after {
 .image-holder {
   position: relative;
 }
+
 /* Hide the Add to Cart button if out of stock */
 .out-of-stock .add-to-cart {
   display: none;
