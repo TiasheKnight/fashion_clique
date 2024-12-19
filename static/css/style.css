@@ -1831,14 +1831,14 @@ a.btn-link.text-light:after {
   flex-direction: column;
 }
 .product-name {
-  font-size: 25px;
+  font-size: 20px;
   color: #2e2d2d;
   /* display: flex; */
   justify-content: space-between; /* Align price and stock correctly */
   align-items: center;
 }
 .product-info {
-  font-size: 20px;
+  font-size: 15px;
   color: #555;
   /* display: flex; */
   justify-content: space-between; /* Align price and stock correctly */
@@ -1860,7 +1860,7 @@ a.btn-link.text-light:after {
   top: 40%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-color: #55b3ea;
+  background-color: #674d46;
   color: #fff;
   padding: 10px 20px;
   border: none;
