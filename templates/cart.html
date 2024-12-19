@@ -555,7 +555,11 @@
               </thead>
               <tbody>
                 {% for product in products %}
-                <tr class="animate__animated animate__fadeInLeft" data-product-id="{{ product['id'] }}">
+                <tr
+                  class="animate__animated animate__fadeInLeft"
+                  data-product-id="{{ product['id'] }}"
+                  data-price="{{ product['price'] }}"
+                >
                   <td>
                     <div class="d-flex align-items-center">
                       <img
@@ -576,6 +580,7 @@
                       value="{{ product['quantity'] }}"
                       min="1"
                       data-product-id="{{ product['id'] }}"
+                      data-price="{{ product['price'] }}"
                     />
                   </td>
                   <td>${{ product['price'] }}</td>
@@ -588,7 +593,8 @@
                       Remove
                     </button>
                   </td>
-                </tr>                
+                </tr>
+
                 {% endfor %}
 
                 <tr
@@ -733,102 +739,93 @@
       }
     </script>
     <script>
-      document.querySelectorAll('.update-quantity').forEach(input => {
-        input.addEventListener('change', function() {
-          const quantity = this.value; // Get the new quantity
-          const productId = this.getAttribute('data-product-id'); // Get the product ID
-    
-          // Send the updated quantity to the server via AJAX
-          fetch('/update_quantity', {
-            method: 'POST',
+      document.querySelectorAll(".update-quantity").forEach((input) => {
+        input.addEventListener("change", function () {
+          const quantity = parseInt(this.value, 10);
+          const productId = this.getAttribute("data-product-id"); // Product ID as string
+
+          fetch("/update_quantity", {
+            method: "POST",
             headers: {
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
             },
             body: JSON.stringify({
               product_id: productId,
-              quantity: quantity
+              quantity: quantity,
             }),
           })
-          .then(response => response.json())
-          .then(data => {
-            if (data.success) {
-              // Update the total price for the product
-              updateCart(data.cart);
-            } else {
-              alert(data.error);
-            }
-          })
-          .catch(error => console.error('Error:', error));
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                window.location.href = "/cart";
+              } else {
+                window.location.href = "/cart";
+                console.log(data.error);
+              }
+            })
+            .catch((error) => console.error("Error:", error));
         });
       });
-    
-      // Function to update the cart display with new total values
-      function updateCart(cart) {
-        // Update the cart with the new total prices and quantities
-        cart.forEach(product => {
-          const row = document.querySelector(`tr[data-product-id="${product.product_id}"]`);
-          const quantityCell = row.querySelector('.update-quantity');
-          const totalCell = row.querySelector('td:nth-child(4)');
-    
-          // Update the quantity and total for the product
-          quantityCell.value = product.quantity;
-          totalCell.textContent = `$${(product.price * product.quantity).toFixed(2)}`;
-    
-          // Optionally, update the overall total price of the cart
-          const totalPrice = cart.reduce((sum, product) => sum + (product.price * product.quantity), 0);
-          document.getElementById('total-price').textContent = `$${totalPrice.toFixed(2)}`;
-        });
-      }
+
+      // // Function to update the cart display with new total values
+      // function updateCart(cart) {
+      //   // Update the cart with the new total prices and quantities
+      //   cart.forEach((product) => {
+      //     const row = document.querySelector(
+      //       `tr[data-product-id="${product.product_id}"]`
+      //     );
+      //     const quantityCell = row.querySelector(".update-quantity");
+      //     const totalCell = row.querySelector("td:nth-child(4)");
+
+      //     // Update the quantity and total for the product
+      //     quantityCell.value = product.quantity;
+      //     totalCell.textContent = `$${(
+      //       product.price * product.quantity
+      //     ).toFixed(2)}`;
+
+      //     // Optionally, update the overall total price of the cart
+      //     const totalPrice = cart.reduce(
+      //       (sum, product) => sum + product.price * product.quantity,
+      //       0
+      //     );
+      //     document.getElementById(
+      //       "total-price"
+      //     ).textContent = `$${totalPrice.toFixed(2)}`;
+      //   });
+      // }
     </script>
-    
+
     <script>
-  document.querySelectorAll('.update-quantity').forEach(input => {
-    input.addEventListener('change', function() {
-      const quantity = this.value; // Get the new quantity
-      const productId = this.getAttribute('data-product-id'); // Get the product ID
+      document.querySelectorAll(".update-quantity").forEach((input) => {
+        input.addEventListener("change", function () {
+          const productId = this.getAttribute("data-product-id");
+          const price = parseFloat(this.getAttribute("data-price"));
+          const quantity = parseInt(this.value);
 
-      // Send the updated quantity to the server via AJAX
-      fetch('/update_quantity', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          product_id: productId,
-          quantity: quantity
-        }),
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          // Update the total price for the product
-          updateCart(data.cart);
-        } else {
-          alert(data.error);
-        }
-      })
-      .catch(error => console.error('Error:', error));
-    });
-  });
+          fetch("/update_quantity", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              product_id: productId,
+              price: price,
+              quantity: quantity,
+            }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                // Update the cart totals in the UI
+                console.log("Cart updated successfully:", data);
+              } else {
+                console.log(data.error);
+              }
+            })
+            .catch((error) => console.error("Error updating quantity:", error));
+        });
+      });
 
-  // Function to update the cart display with new total values
-  function updateCart(cart) {
-    // Update the cart with the new total prices and quantities
-    cart.forEach(product => {
-      const row = document.querySelector(`tr[data-product-id="${product.product_id}"]`);
-      const quantityCell = row.querySelector('.update-quantity');
-      const totalCell = row.querySelector('td:nth-child(4)');
-
-      // Update the quantity and total for the product
-      quantityCell.value = product.quantity;
-      totalCell.textContent = `$${(product.price * product.quantity).toFixed(2)}`;
-
-      // Optionally, update the overall total price of the cart
-      const totalPrice = cart.reduce((sum, product) => sum + (product.price * product.quantity), 0);
-      document.getElementById('total-price').textContent = `$${totalPrice.toFixed(2)}`;
-    });
-  }
-      // Function to fetch cart count from the backend
       function updateCartCount() {
         // Fetch the cart data from the backend
         fetch("/get_cart")

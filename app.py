@@ -239,38 +239,38 @@ def clear_cart():
 
 
 
-@app.route('/update_quantity', methods=['POST'])
+from flask import redirect, url_for
+
+@app.route('/update_quantity', methods=['POST']) 
 def update_quantity():
     try:
-        data = request.get_json()  # Parse the JSON payload
-        product_id = data['product_id']
-        quantity = int(data['quantity'])  # Get the new quantity
+        data = request.get_json()
+        product_id = str(data['product_id'])
+        quantity = int(data['quantity'])
+        price = float(data['price'])  # Retrieve price from the request
 
         # Check if the cart exists in the session
         if 'cart' not in session:
             return jsonify({'error': 'Cart is empty'}), 400
 
-        # Find the product in the cart and update its quantity
+        # Find the product in the cart and update its quantity and total
         for item in session['cart']:
-            if item['product_id'] == product_id:
-                item['quantity'] = quantity  # Update quantity
-                item['total'] = item['price'] * quantity  # Recalculate total for the product
+            if str(item['product_id']) == product_id:
+                item['quantity'] = quantity
+                item['price'] = price  # Ensure price is updated
+                item['total'] = price * quantity  # Update total
                 session.modified = True
-                break  # Stop once we find the product
+                break
+        else:
+            return jsonify({'error': 'Product not found in cart'}), 404
 
-        # Recalculate the cart total (if needed)
-        cart_total = sum(item['total'] for item in session['cart'])
+        # Redirect to the cart page
+        return redirect(url_for('cart'))  # Replace 'cart' with your cart route function name
 
-        # Return the updated cart data
-        return jsonify({
-            'success': True,
-            'cart': session['cart'],
-            'cart_total': cart_total  # Optionally, you can send back the updated cart total
-        })
-
+    except KeyError as e:
+        return jsonify({'error': f'Missing key: {str(e)}'}), 400
     except Exception as e:
-        print(f"Error: {e}")
-        return jsonify({'error': 'An error occurred while updating the cart'}), 500
+        return jsonify({'error': str(e)}), 500
 
 
 
