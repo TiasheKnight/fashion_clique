@@ -543,13 +543,11 @@
                 <div
                   class="image-wrapper {% if product[5] == 0 %}out-of-stock{% endif %}"
                 >
-                  <a href="/index">
-                    <img
-                      src="{{ url_for('static', filename=product[4]) }}"
-                      alt="product"
-                      class="product-image img-fluid"
-                    />
-                  </a>
+                  <img
+                    src="{{ url_for('static', filename=product[4]) }}"
+                    alt="product"
+                    class="product-image img-fluid"
+                  />
                   {% if product[5] == 0 %}
                   <div class="overlay">
                     <span class="out-of-stock-text">Out of stock</span>
@@ -737,7 +735,7 @@
           const quantity = 1; // Or get the quantity from a field like: productContent.querySelector("#quantity").value;
 
           // Send the product ID and quantity to the server
-          addToCart(productId, quantity)
+          addToCart(productId, quantity);
         });
       });
     </script>
@@ -745,23 +743,23 @@
       // Function to fetch cart count from the backend
       function updateCartCount() {
         // Fetch the cart data from the backend
-        fetch('/get_cart')
-          .then(response => response.json())
-          .then(data => {
+        fetch("/get_cart")
+          .then((response) => response.json())
+          .then((data) => {
             // Get the number of items in the cart
             const cartCount = data.cart.length;
-      
+
             // Update the cart count on the page
             document.getElementById("cartCount").innerText = cartCount;
           })
-          .catch(error => {
-            console.error('Error fetching cart data:', error);
+          .catch((error) => {
+            console.error("Error fetching cart data:", error);
           });
       }
-      
+
       // Call the function when the page loads
-      document.addEventListener('DOMContentLoaded', updateCartCount);
-      </script>
+      document.addEventListener("DOMContentLoaded", updateCartCount);
+    </script>
 
     <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/plugins.js') }}"></script>
