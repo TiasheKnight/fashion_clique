@@ -349,7 +349,7 @@
       inputs.forEach(input => input.disabled = true);
       saveBtn.disabled = true;
       editBtn.disabled = false;
-      alert("Changes saved successfully!");
+      console.log("Changes saved successfully!");
     });
   </script>
   <!-- Loading Popup (Initially Hidden) -->
@@ -414,7 +414,7 @@ document.getElementById("save-btn").addEventListener("click", function () {
     .then(response => response.json())
     .then(data => {
         if (data.status === 'success') {
-            alert('Changes saved successfully!');
+            console.log('Changes saved successfully!');
             
             // Optionally update the form values with the saved data
             document.getElementById("account-name").value = data.user_data.name;

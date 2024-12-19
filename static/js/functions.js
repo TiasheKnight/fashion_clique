@@ -184,10 +184,10 @@ function sendMessage() {
   .then(response => response.json())
   .then(data => {
     if (data.status === 'success') {
-      alert(data.message);
+      console.log(data.message);
       document.querySelector('form').reset();
     } else {
-      alert('Error: ' + data.message);
+      console.log('Error: ' + data.message);
     }
   })
   .catch(error => console.error('Error:', error));

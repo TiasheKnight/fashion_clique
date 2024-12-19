@@ -116,7 +116,7 @@ def register():
         user_id = user_count + 1  # Set the new user_id to the next available number
 
         # Insert the new user into the database, including user_id
-        cursor.execute('''INSERT INTO users (id, username, email, password) 
+        cursor.execute('''INSERT INTO users (user_id, username, email, password) 
                           VALUES (?, ?, ?, ?)''', (user_id, name, email, hashed_password))
         conn.commit()
         conn.close()
@@ -206,7 +206,7 @@ def add_to_cart():
     
     if 'cart' not in session:
         session['cart'] = []  # Initialize the cart if it doesn't exist
-    
+    print(session)
     # Check if product already exists in the cart
     product_found = False
     for item in session['cart']:
@@ -242,8 +242,9 @@ def clear_cart():
 @app.route('/update_quantity', methods=['POST'])
 def update_quantity():
     try:
-        product_id = request.form['product_id']
-        quantity = int(request.form['quantity'])  # Get the new quantity
+        data = request.get_json()  # Parse the JSON payload
+        product_id = data['product_id']
+        quantity = int(data['quantity'])  # Get the new quantity
 
         # Check if the cart exists in the session
         if 'cart' not in session:
@@ -253,13 +254,24 @@ def update_quantity():
         for item in session['cart']:
             if item['product_id'] == product_id:
                 item['quantity'] = quantity  # Update quantity
+                item['total'] = item['price'] * quantity  # Recalculate total for the product
                 session.modified = True
-                return jsonify({'success': True, 'cart': session['cart']})
+                break  # Stop once we find the product
 
-        return jsonify({'error': 'Product not found in cart'}), 404
+        # Recalculate the cart total (if needed)
+        cart_total = sum(item['total'] for item in session['cart'])
+
+        # Return the updated cart data
+        return jsonify({
+            'success': True,
+            'cart': session['cart'],
+            'cart_total': cart_total  # Optionally, you can send back the updated cart total
+        })
+
     except Exception as e:
         print(f"Error: {e}")
         return jsonify({'error': 'An error occurred while updating the cart'}), 500
+
 
 
 
