@@ -2,12 +2,13 @@
 function loginUser() {
     const emailElement = document.getElementById('login-email');
     const passwordElement = document.getElementById('login-password');
-  
+    
     // Check if the elements exist
     console.log(emailElement, passwordElement);
   
     const email = emailElement.value;
-    const password = passwordElement.value;
+    // const password = passwordElement.value;
+    const password = CryptoJS.SHA256(passwordElement.value).toString();
 
     if (email=='admin'||password=='admin'){
       window.location.href = '/dashboard'; 
@@ -18,7 +19,8 @@ function loginUser() {
       alert('Please fill in both fields');
       return;
     }
-  
+
+    // const hashedPassword = CryptoJS.SHA256(password).toString();
     fetch('/login', {
       method: 'POST',
       headers: {
@@ -115,9 +117,10 @@ function registerAccount() {
   const email = form['register-email'].value;
   const phone = form['register-phone'].value;
   const address = form['register-address'].value;
-  const password = form['register-password'].value;
-  const cPassword = form['register-confirm-password'].value;
-
+  // const password = form['register-password'].value;
+  // const cPassword = form['register-confirm-password'].value;
+  const password = CryptoJS.SHA256(form['register-password'].value).toString();
+  const cPassword = CryptoJS.SHA256(form['register-confirm-password'].value).toString();
   // Check if passwords match
   if (password !== cPassword) {
       alert("Passwords do not match.");
@@ -128,7 +131,7 @@ function registerAccount() {
   if (name && email && password && cPassword) {
       // Show the loading popup
       document.getElementById("loadingPopup").style.display = "flex";
-
+      // const hashedPassword = CryptoJS.SHA256(password).toString();
       // Prepare data to send to Flask using AJAX (using JSON body)
       const registrationData = {
           name: name,
@@ -297,7 +300,7 @@ document.querySelectorAll('.remove-item').forEach(button => {
             body: 'product_id=' + productId
         })
         .then(response => response.json())
-        .then(data => {
+        .then( => {
             // Optionally, update the cart page or show a success message
             console.log('Product removed from cart!');
             location.reload();  // Reload the page to reflect changes
@@ -313,53 +316,49 @@ function Checkout() {
   const name = document.getElementById("name").value;
   const address = document.getElementById("address").value;
   const phone = document.getElementById("phone").value;
+  const total = parseFloat(document.getElementById("total").textContent.replace('$', '').trim()); // Extract total price
+  
+  if (name && address && phone && !isNaN(total)) {
+    closeShippingPopup();  // Close the shipping details popup
 
-  if (name && address && phone) {
-      closeShippingPopup();  // Close the shipping details popup
-      
-      // Show the loading popup
-      document.getElementById("loadingPopup").style.display = "flex";
+    // Show the loading popup
+    document.getElementById("loadingPopup").style.display = "flex";
 
-      // Prepare the order data to send to the backend
-      const orderData = {
-          name: name,
-          address: address,
-          phone: phone
-      };
+    // Prepare the order data to send to the backend
+    const orderData = {
+      name: name,
+      address: address,
+      phone: phone,
+      total: total
+    };
 
-      // Send the order details to the backend using fetch
-      fetch('/submit_order', {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(orderData)  // Send order data as JSON
-      })
+    // Send the data using fetch
+    fetch('/submit_order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(orderData)
+    })
       .then(response => response.json())
       .then(data => {
-          // If the order is successful, show success popup
-          if (data.status === 'success') {
-              setTimeout(function() {
-                  document.getElementById("loadingPopup").style.display = "none";  // Hide loading popup
-                  document.getElementById("successPopup").style.display = "flex";  // Show success popup
+        document.getElementById("loadingPopup").style.display = "none"; // Hide the loading popup
 
-                  // Redirect to the home page or another page after a short delay
-                  setTimeout(function() {
-                      window.location.href = "/";  // Navigate to the home page or any other page
-                  }, 2000);
-              }, 2000);
-          } else {
-              alert("There was an error with your order. Please try again.");
-          }
+        if (data.status === 'success') {
+          console.log('Order placed successfully!');
+          // Optionally, redirect or update the UI
+        } else {
+          console.log(`Error: ${data.message}`);
+        }
       })
       .catch(error => {
-          console.error('Error:', error);
-          alert("An error occurred while placing the order.");
+        console.error('Error:', error);
+        document.getElementById("loadingPopup").style.display = "none";
+        console.log('Failed to place the order.');
       });
   } else {
-      alert("Please fill in all shipping details.");
+    console.log('Please fill out all required fields and ensure the total price is valid.');
   }
 }
+
 
 
 // Newsletter submission

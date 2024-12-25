@@ -187,16 +187,17 @@ def submit_order():
     client = data.get('name')
     address = data.get('address')
     phone = data.get('phone')
+    total = data.get('total')
     products = json.dumps(session.get('cart', []))  # Convert cart to JSON string
-
+    print(total)
 
     # Insert order into database
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("""
-        INSERT INTO orders (client_id, client, products, address, phone, fulfilled)
-        VALUES (?, ?, ?, ?, ?,'false')
-    """, (session.get('user_id'), client, products, address, phone))
+        INSERT INTO orders (client_id, client, products, total, address, phone, fulfilled)
+        VALUES (?, ?, ?, ?, ?, ?,'false')
+    """, (session.get('user_id'), client, products, total, address, phone))
     conn.commit()
     conn.close()
 
@@ -405,7 +406,6 @@ def update_account():
     phone = request.form.get('phone')
     address = request.form.get('address')
     password = request.form.get('password')
-
     user_id = session['user_id']
 
     # Connect to the database and update the user details

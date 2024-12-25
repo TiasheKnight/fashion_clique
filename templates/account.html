@@ -299,30 +299,38 @@
   
               <!-- Personal Information -->
               <h6 class="text-uppercase text-muted mb-3">Personal Information</h6>
-              <div class="mb-3">
-                  <label for="account-name" class="form-label">Full Name</label>
-                  <input type="text" class="form-control" id="account-name" value="{{ user_data[0] }}" disabled>
+              <div class="row">
+                  <label for="account-name" class="form-label col-sm">Full Name</label>
+                  <input type="text" class="form-control col-sm" id="account-name" value="{{ user_data[0] }}" disabled>
               </div>
-              <div class="mb-3">
-                  <label for="account-email" class="form-label">Email Address</label>
-                  <input type="email" class="form-control" id="account-email" value="{{ user_data[1] }}" disabled>
+              <br>
+              <div class="row">
+                  <label for="account-email" class="form-label col-sm">Email Address</label>
+                  <input type="email" class="form-control col-sm" id="account-email" value="{{ user_data[1] }}" disabled>
               </div>
-              <div class="mb-3">
-                <label for="account-phone" class="form-label">Phone</label>
-                <input type="text" class="form-control" id="account-phone" value="{{ user_data[2] }}" disabled>
+              <br>
+              <div class="row">
+                <label for="account-phone" class="form-label col-sm">Phone</label>
+                <input type="text" class="form-control col-sm" id="account-phone" value="{{ user_data[2] }}" disabled>
               </div>
-              <div class="mb-3">
-                <label for="account-address" class="form-label">Address</label>
-                <input type="text" class="form-control" id="account-address" value="{{ user_data[3] }}" disabled>
+              <br>
+              <div class="row">
+                <label for="account-address" class="form-label col-sm">Address</label>
+                <input type="text" class="form-control col-sm" id="account-address" value="{{ user_data[3] }}" disabled>
               </div>
-  
+              <br>
               <!-- Account Settings -->
-              <h6 class="text-uppercase text-muted mb-3">Account Settings</h6>
-              <div class="mb-3">
-                  <label for="account-password" class="form-label">Password</label>
-                  <input type="password" class="form-control" id="account-password" value="••••••••" disabled>
+              <h6 class="text-uppercase text-muted mb-3">Password Settings</h6>
+              <div class="row">
+                  <label for="account-password" class="form-label col-sm">Password</label>
+                  <input type="password" class="form-control col-sm" id="account-password" value="••••••••" disabled>
               </div>
-  
+              <br>
+              <div class="row">
+                <label for="account-cPassword" class="form-label col-sm">Confirm Password</label>
+                <input type="password" class="form-control col-sm" id="account-cPassword" value="••••••••" disabled>
+              </div>
+
               <div class="d-flex justify-content-between align-items-center mt-4">
                   <button type="button" class="btn btn-outline-dark btn-lg" id="edit-btn">Edit</button>
                   <button type="submit" class="btn btn-dark btn-lg" id="save-btn" disabled>Save Changes</button>
@@ -351,7 +359,8 @@
     // Clear the password field
     const passwordInput = document.getElementById('account-password');
     passwordInput.value = '';  // Clear the value of the password input
-
+    const cPasswordInput = document.getElementById('account-cPassword');
+    cPasswordInput.value = ''; 
   } else {
     // If the button text is "Cancel", change to "Edit"
     editBtn.innerText = "Edit";
@@ -363,6 +372,8 @@
     // Set the password field to a placeholder or masked value
     const passwordInput = document.getElementById('account-password');
     passwordInput.value = '........';  // Set the value to something masked (or clear if desired)
+    const cPasswordInput = document.getElementById('account-cPassword');
+    cPasswordInput.value = '........'; 
   }
 });
   
@@ -410,8 +421,9 @@ document.getElementById("save-btn").addEventListener("click", function () {
     const email = document.getElementById("account-email").value;
     const phone = document.getElementById("account-phone").value;
     const address = document.getElementById("account-address").value;
-    const password = document.getElementById("account-password").value; 
-    
+    // const password = document.getElementById("account-password").value; 
+    const password = CryptoJS.SHA256(document.getElementById("account-password").value).toString();
+    const cPassword = CryptoJS.SHA256(document.getElementById("account-cPassword").value).toString();
     // Prepare the data to be sent to the server
     const formData = new FormData();
     formData.append("name", name);
@@ -419,7 +431,11 @@ document.getElementById("save-btn").addEventListener("click", function () {
     formData.append("phone", phone);
     formData.append("address", address);
     if (password) {
+      if (password==cPassword)
         formData.append("password", password);
+      else {
+        alert('Password mismatch');
+      }
     }
 
     // Send the updated data to the server using fetch
@@ -444,6 +460,7 @@ document.getElementById("save-btn").addEventListener("click", function () {
             document.getElementById("account-phone").disabled = true;
             document.getElementById("account-address").disabled = true;
             document.getElementById("account-password").disabled = true;
+            document.getElementById("account-cPassword").disabled = true;
             document.getElementById("save-btn").disabled = true;
             
             // Re-enable the edit button
@@ -480,7 +497,7 @@ document.getElementById("save-btn").addEventListener("click", function () {
   // Call the function when the page loads
   document.addEventListener('DOMContentLoaded', updateCartCount);
   </script>
-  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
   <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
   <script src="{{ url_for('static', filename='js/plugins.js') }}"></script>
   <script src="{{ url_for('static', filename='js/SmoothScroll.js') }}"></script>
