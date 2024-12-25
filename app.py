@@ -402,6 +402,7 @@ def update_account():
     name = request.form.get('name')
     email = request.form.get('email')
     phone = request.form.get('phone')
+    address = request.form.get('address')
     password = request.form.get('password')
 
     user_id = session['user_id']
@@ -415,24 +416,25 @@ def update_account():
         hashed_password = hash_password(password)
         cursor.execute(""" 
             UPDATE users 
-            SET username = ?, email = ?, phone = ?, password = ? 
+            SET username = ?, email = ?, phone = ?, address = ?, password = ? 
             WHERE id = ? 
-        """, (name, email, phone, hashed_password, user_id))
+        """, (name, email, phone, address, hashed_password, user_id))
     else:
         cursor.execute("""
             UPDATE users 
-            SET username = ?, email = ?, phone = ? 
+            SET username = ?, email = ?, phone = ?, address = ?
             WHERE id = ? 
-        """, (name, email, phone, user_id))
+        """, (name, email, phone, address, user_id))
     
     # Update session values
     session['username'] = name  # Store username in session
     session['email'] = email    # Store email in session
-
+    session['phone'] = phone  # Store username in session
+    session['address'] = address    # Store email in session
     conn.commit()
 
     # Fetch the updated data to return to the client
-    cursor.execute("SELECT username, email, phone FROM users WHERE id = ?", (user_id,))
+    cursor.execute("SELECT username, email, phone, address FROM users WHERE id = ?", (user_id,))
     updated_user_data = cursor.fetchone()
     conn.close()
 
@@ -441,7 +443,8 @@ def update_account():
         'user_data': {
             'name': updated_user_data[0],
             'email': updated_user_data[1],
-            'phone': updated_user_data[2]
+            'phone': updated_user_data[2],
+            'address': updated_user_data[3]
         }
     })
 
@@ -458,7 +461,7 @@ def account():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
-    cursor.execute("SELECT username, email, phone FROM users WHERE user_id = ?", (user_id,))
+    cursor.execute("SELECT username, email, phone, address FROM users WHERE user_id = ?", (user_id,))
     user_data = cursor.fetchone()
     
     conn.close()

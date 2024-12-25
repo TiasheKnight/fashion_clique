@@ -307,16 +307,20 @@
                   <label for="account-email" class="form-label">Email Address</label>
                   <input type="email" class="form-control" id="account-email" value="{{ user_data[1] }}" disabled>
               </div>
+              <div class="mb-3">
+                <label for="account-phone" class="form-label">Phone</label>
+                <input type="text" class="form-control" id="account-phone" value="{{ user_data[2] }}" disabled>
+              </div>
+              <div class="mb-3">
+                <label for="account-address" class="form-label">Address</label>
+                <input type="text" class="form-control" id="account-address" value="{{ user_data[3] }}" disabled>
+              </div>
   
               <!-- Account Settings -->
               <h6 class="text-uppercase text-muted mb-3">Account Settings</h6>
               <div class="mb-3">
                   <label for="account-password" class="form-label">Password</label>
                   <input type="password" class="form-control" id="account-password" value="••••••••" disabled>
-              </div>
-              <div class="mb-3">
-                  <label for="account-phone" class="form-label">Phone Number</label>
-                  <input type="text" class="form-control" id="account-phone" value="{{ user_data[2] }}" disabled>
               </div>
   
               <div class="d-flex justify-content-between align-items-center mt-4">
@@ -336,13 +340,31 @@
     const inputs = document.querySelectorAll("#account-form input");
   
     editBtn.addEventListener("click", () => {
-      inputs.forEach(input => input.disabled = false);
-      saveBtn.disabled = false;
-      editBtn.disabled = true;
-        // Clear the password field
-      const passwordInput = document.getElementById('account-password');
-      passwordInput.value = '';  // Clear the value of the password input
-    });
+  if (editBtn.innerText === "Edit") {
+    // If the button text is "Edit", change to "Cancel"
+    editBtn.innerText = "Cancel";
+
+    // Enable the input fields and enable the save button
+    inputs.forEach(input => input.disabled = false);
+    saveBtn.disabled = false;
+    editBtn.disabled = false;
+    // Clear the password field
+    const passwordInput = document.getElementById('account-password');
+    passwordInput.value = '';  // Clear the value of the password input
+
+  } else {
+    // If the button text is "Cancel", change to "Edit"
+    editBtn.innerText = "Edit";
+
+    // Disable the input fields and disable the save button
+    inputs.forEach(input => input.disabled = true);
+    saveBtn.disabled = true;
+    editBtn.disabled = false;
+    // Set the password field to a placeholder or masked value
+    const passwordInput = document.getElementById('account-password');
+    passwordInput.value = '........';  // Set the value to something masked (or clear if desired)
+  }
+});
   
     document.getElementById("account-form").addEventListener("submit", (e) => {
       e.preventDefault();
@@ -350,6 +372,9 @@
       saveBtn.disabled = true;
       editBtn.disabled = false;
       console.log("Changes saved successfully!");
+      editBtn.innerText = "Edit";
+      const passwordInput = document.getElementById('account-password');
+      passwordInput.value = '........';  // Set the value to something masked (or clear if desired)
     });
   </script>
   <!-- Loading Popup (Initially Hidden) -->
@@ -378,30 +403,21 @@
   </div>
   </div>
   <script>
-    document.getElementById("edit-btn").addEventListener("click", function () {
-    // Enable input fields and the save button
-    document.getElementById("account-name").disabled = false;
-    document.getElementById("account-email").disabled = false;
-    document.getElementById("account-phone").disabled = false;
-    document.getElementById("account-password").disabled = false;
-    document.getElementById("save-btn").disabled = false;
-    
-    // Disable the edit button while saving changes
-    this.disabled = true;
-});
 
 document.getElementById("save-btn").addEventListener("click", function () {
     // Get the updated values from the form
     const name = document.getElementById("account-name").value;
     const email = document.getElementById("account-email").value;
     const phone = document.getElementById("account-phone").value;
-    const password = document.getElementById("account-password").value;  // Add password if you want to update it
+    const address = document.getElementById("account-address").value;
+    const password = document.getElementById("account-password").value; 
     
     // Prepare the data to be sent to the server
     const formData = new FormData();
     formData.append("name", name);
     formData.append("email", email);
     formData.append("phone", phone);
+    formData.append("address", address);
     if (password) {
         formData.append("password", password);
     }
@@ -420,11 +436,13 @@ document.getElementById("save-btn").addEventListener("click", function () {
             document.getElementById("account-name").value = data.user_data.name;
             document.getElementById("account-email").value = data.user_data.email;
             document.getElementById("account-phone").value = data.user_data.phone;
-            
+            document.getElementById("account-address").value = data.user_data.address;
+
             // Disable inputs and save button again after saving
             document.getElementById("account-name").disabled = true;
             document.getElementById("account-email").disabled = true;
             document.getElementById("account-phone").disabled = true;
+            document.getElementById("account-address").disabled = true;
             document.getElementById("account-password").disabled = true;
             document.getElementById("save-btn").disabled = true;
             
