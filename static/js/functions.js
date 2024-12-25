@@ -317,6 +317,7 @@ function Checkout() {
 
       // Prepare the order data to send to the backend
       const orderData = {
+          name: name,
           address: address,
           phone: phone
       };

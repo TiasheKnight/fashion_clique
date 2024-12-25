@@ -1,0 +1,430 @@
+<h3>Messages (Unseen)</h3>
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>Message ID</th>
+      <th>Full Name</th>
+      <th>Email</th>
+      <th>Message</th>
+      <th>Created At</th>
+      <th>Seen</th>
+    </tr>
+  </thead>
+  <tbody id="messagesTableBody">
+    <!-- Filled dynamically -->
+  </tbody>
+</table>
+
+<h3>Newsletter</h3>
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Email</th>
+    </tr>
+  </thead>
+  <tbody id="newsletterTableBody">
+    <!-- Filled dynamically -->
+  </tbody>
+</table>
+</div>
+
+<!-- Right Column -->
+<div class="col-md-6">
+<h3>Products</h3>
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Price</th>
+      <th>Image</th>
+      <th>Stock</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody id="productsTableBody">
+    <!-- Filled dynamically -->
+  </tbody>
+</table>
+<button class="btn btn-primary" onclick="addEmptyProductRow()">Add New Product</button>
+</div>
+</div>
+</div>
+
+<script>
+// Fetch and Render Data
+// async function fetchData(endpoint, tableBodyId, rowBuilder) {
+// const response = await fetch(endpoint);
+// const data = await response.json();
+
+// const tableBody = document.getElementById(tableBodyId);
+// tableBody.innerHTML = '';
+
+// data.forEach(item => {
+// const row = rowBuilder(item);
+// tableBody.appendChild(row);
+// });
+// }
+async function fetchData() {
+    try {
+        const response = await fetch('/admin/data');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        populateTables(data); // Call populateTables with the fetched data
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    }
+}
+
+function populateTables(data) {
+    // Populate Users Table
+    const usersTable = document.getElementById("usersTableBody");
+    usersTable.innerHTML = ""; // Clear existing rows
+    data.users.forEach(user => {
+        const row = `
+            <tr>
+                <td>${user.user_id}</td>
+                <td>${user.username}</td>
+                <td>${user.email}</td>
+                <td>${user.phone}</td>
+                <td>${user.address}</td>
+                <td><button onclick="deleteUser(${user.user_id})">Remove</button></td>
+            </tr>
+        `;
+        usersTable.innerHTML += row;
+    });
+
+    // Populate Orders Table
+    const ordersTable = document.getElementById("ordersTableBody");
+    ordersTable.innerHTML = ""; // Clear existing rows
+    data.orders.forEach(order => {
+        const row = `
+            <tr>
+                <td>${order.id}</td>
+                <td>${order.user_id}</td>
+                <td>${order.products}</td>
+                <td>${order.address}</td>
+                <td>${order.phone}</td>
+                <td>${order.created_at}</td>
+                <td>
+                    <input type="checkbox" ${order.fulfilled === "true" ? "checked" : ""} 
+                        onchange="updateOrderFulfilled(${order.id}, this.checked)" />
+                </td>
+            </tr>
+        `;
+        ordersTable.innerHTML += row;
+    });
+
+    // Populate Messages Table
+    const messagesTable = document.getElementById("messagesTableBody");
+    messagesTable.innerHTML = ""; // Clear existing rows
+    data.messages.forEach(message => {
+        const row = `
+            <tr>
+                <td>${message.id}</td>
+                <td>${message.full_name}</td>
+                <td>${message.email}</td>
+                <td>${message.message}</td>
+                <td>${message.created_at}</td>
+                <td>
+                    <input type="checkbox" ${message.seen === "true" ? "checked" : ""} 
+                        onchange="updateMessageSeen(${message.id}, this.checked)" />
+                </td>
+            </tr>
+        `;
+        messagesTable.innerHTML += row;
+    });
+
+    // Populate Newsletter Table
+    const newsletterTable = document.getElementById("newsletterTableBody");
+    newsletterTable.innerHTML = ""; // Clear existing rows
+    data.newsletter.forEach(entry => {
+        const row = `
+            <tr>
+                <td>${entry.id}</td>
+                <td>${entry.email}</td>
+            </tr>
+        `;
+        newsletterTable.innerHTML += row;
+    });
+
+    // Populate Products Table
+    const productsTable = document.getElementById("productsTableBody");
+    productsTable.innerHTML = ""; // Clear existing rows
+    data.products.forEach(product => {
+        const row = `
+            <tr>
+                <td>${product.id}</td>
+                <td><input type="text" value="${product.name}" /></td>
+                <td>
+                    <select>
+                        <option value="top" ${product.type === "top" ? "selected" : ""}>Top</option>
+                        <option value="dress" ${product.type === "dress" ? "selected" : ""}>Dress</option>
+                        <option value="pants" ${product.type === "pants" ? "selected" : ""}>Pants</option>
+                    </select>
+                </td>
+                <td><input type="number" value="${product.price}" /></td>
+                <td><input type="text" value="${product.img}" /></td>
+                <td><input type="number" value="${product.stock}" /></td>
+                <td>
+                    <button onclick="saveProduct(${product.id})">Save</button>
+                    <button onclick="removeProduct(${product.id})">Remove</button>
+                </td>
+            </tr>
+        `;
+        productsTable.innerHTML += row;
+    });
+}
+// ___________________________________________________________________
+async function fetchData() {
+    try {
+        const response = await fetch('/admin/data');
+        const data = await response.json();
+
+        if (response.ok) {
+            // Populate Users TablemessagesTableBody
+            const usersTableBody = document.getElementById('usersTableBody');
+            usersTableBody.innerHTML = ''; // Clear existing rows
+            data.users.forEach(user => {
+                const row = `
+                    <tr>
+                        <td>${user.user_id}</td>
+                        <td>${user.username}</td>
+                        <td>${user.email}</td>
+                        <td>${user.phone}</td>
+                        <td>${user.address}</td>
+                        <td><button class="btn btn-danger" onclick="deleteUser(${user.user_id})">Remove</button></td>
+                    </tr>`;
+                usersTableBody.insertAdjacentHTML('beforeend', row);
+            });
+
+            // Populate Orders Table
+            const ordersTableBody = document.getElementById('ordersTableBody');
+            ordersTableBody.innerHTML = ''; // Clear existing rows
+            data.orders.forEach(order => {
+                const checkbox = order.fulfilled === 'true' ? 'checked' : '';
+                const row = `
+                    <tr>
+                        <td>${order.id}</td>
+                        <td>${order.user_id}</td>
+                        <td>${order.products}</td>
+                        <td>${order.address}</td>
+                        <td>${order.phone}</td>
+                        <td>${order.created_at}</td>
+                        <td>
+                            <input type="checkbox" ${checkbox} onchange="updateOrderFulfilled(${order.id}, this.checked)">
+                        </td>
+                    </tr>`;
+                ordersTableBody.insertAdjacentHTML('beforeend', row);
+            });
+
+            // Populate Messages Table
+            const messagesTableBody = document.getElementById('messagesTableBody');
+            messagesTableBody.innerHTML = ''; // Clear existing rows
+            data.messages.forEach(message => {
+                const checkbox = message.seen === 'true' ? 'checked' : '';
+                const row = `
+                    <tr>
+                        <td>${message.id}</td>
+                        <td>${message.full_name}</td>
+                        <td>${message.email}</td>
+                        <td>${message.message}</td>
+                        <td>${message.created_at}</td>
+                        <td>
+                            <input type="checkbox" ${checkbox} onchange="updateMessageSeen(${message.id}, this.checked)">
+                        </td>
+                    </tr>`;
+                messagesTableBody.insertAdjacentHTML('beforeend', row);
+            });
+
+            // Populate Newsletter Table
+            const newsletterTableBody = document.getElementById('newsletterTableBody');
+            newsletterTableBody.innerHTML = ''; // Clear existing rows
+            data.newsletter.forEach(entry => {
+                const row = `
+                    <tr>
+                        <td>${entry.id}</td>
+                        <td>${entry.email}</td>
+                    </tr>`;
+                newsletterTableBody.insertAdjacentHTML('beforeend', row);
+            });
+
+            // Populate Products Table
+            const productsTableBody = document.getElementById('productsTableBody');
+            productsTableBody.innerHTML = ''; // Clear existing rows
+            data.products.forEach(product => {
+                const row = `
+                    <tr>
+                        <td>${product.id}</td>
+                        <td>${product.name}</td>
+                        <td>
+                            <select class="form-select">
+                                <option ${product.type === 'top' ? 'selected' : ''}>Top</option>
+                                <option ${product.type === 'dress' ? 'selected' : ''}>Dress</option>
+                                <option ${product.type === 'pants' ? 'selected' : ''}>Pants</option>
+                            </select>
+                        </td>
+                        <td>${product.price}</td>
+                        <td>${product.img}</td>
+                        <td>${product.stock}</td>
+                        <td>
+                            <button class="btn btn-primary">Edit</button>
+                            <button class="btn btn-danger" onclick="deleteProduct(${product.id})">Remove</button>
+                        </td>
+                    </tr>`;
+                productsTableBody.insertAdjacentHTML('beforeend', row);
+            });
+        } else {
+            console.error('Failed to fetch data:', data.message);
+        }
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+
+function buildUserRow(user) {
+const row = document.createElement('tr');
+row.innerHTML = `
+<td>${user.user_id}</td>
+<td>${user.username}</td>
+<td>${user.email}</td>
+<td>${user.phone}</td>
+<td>${user.address}</td>
+<td>
+  <button class="btn btn-danger btn-sm" onclick="deleteUser(${user.user_id})">Remove</button>
+</td>
+`;
+return row;
+}
+
+function buildOrderRow(order) {
+const row = document.createElement('tr');
+row.innerHTML = `
+<td>${order.id}</td>
+<td>${order.user_id}</td>
+<td>${order.products}</td>
+<td>${order.address}</td>
+<td>${order.phone}</td>
+<td>${order.created_at}</td>
+<td>
+  <input type="checkbox" onchange="updateFulfilled(${order.id}, this.checked)" ${order.fulfilled === 'true' ? 'checked' : ''}>
+</td>
+`;
+return row;
+}
+
+function buildMessageRow(message) {
+const row = document.createElement('tr');
+row.innerHTML = `
+<td>${message.id}</td>
+<td>${message.full_name}</td>
+<td>${message.email}</td>
+<td>${message.message}</td>
+<td>${message.created_at}</td>
+<td>
+  <input type="checkbox" onchange="updateSeen(${message.id}, this.checked)" ${message.seen === 'true' ? 'checked' : ''}>
+</td>
+`;
+return row;
+}
+
+function buildNewsletterRow(newsletter) {
+const row = document.createElement('tr');
+row.innerHTML = `
+<td>${newsletter.id}</td>
+<td>${newsletter.email}</td>
+`;
+return row;
+}
+
+function buildProductRow(product) {
+const row = document.createElement('tr');
+row.innerHTML = `
+<td>${product.id}</td>
+<td><input type="text" value="${product.name}" /></td>
+<td>
+  <select>
+    <option value="top" ${product.type === 'top' ? 'selected' : ''}>Top</option>
+    <option value="dress" ${product.type === 'dress' ? 'selected' : ''}>Dress</option>
+    <option value="pants" ${product.type === 'pants' ? 'selected' : ''}>Pants</option>
+  </select>
+</td>
+<td><input type="number" value="${product.price}" /></td>
+<td><input type="text" value="${product.img}" /></td>
+<td><input type="number" value="${product.stock}" /></td>
+<td>
+  <button class="btn btn-success btn-sm" onclick="saveProduct(${product.id}, this)">Save</button>
+  <button class="btn btn-danger btn-sm" onclick="deleteProduct(${product.id})">Remove</button>
+</td>
+`;
+return row;
+}
+
+// CRUD Operations
+async function deleteUser(userId) {
+await fetch(`/admin/users/${userId}`, { method: 'DELETE' });
+fetchData('/admin/users', 'usersTableBody', buildUserRow);
+}
+
+async function updateFulfilled(orderId, fulfilled) {
+await fetch(`/admin/orders/${orderId}`, {
+method: 'PATCH',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ fulfilled })
+});
+fetchData('/admin/orders', 'ordersTableBody', buildOrderRow);
+}
+
+async function updateSeen(messageId, seen) {
+await fetch(`/admin/messages/${messageId}`, {
+method: 'PATCH',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ seen })
+});
+fetchData('/admin/messages', 'messagesTableBody', buildMessageRow);
+}
+
+async function deleteProduct(productId) {
+await fetch(`/admin/products/${productId}`, { method: 'DELETE' });
+fetchData('/admin/products', 'productsTableBody', buildProductRow);
+}
+
+function addEmptyProductRow() {
+const tableBody = document.getElementById('productsTableBody');
+const row = buildProductRow({ id: '', name: '', type: '', price: 0, img: '', stock: 0 });
+tableBody.appendChild(row);
+}
+
+async function saveProduct(productId, button) {
+const row = button.closest('tr');
+const inputs = row.querySelectorAll('input, select');
+const product = {
+id: productId,
+name: inputs[0].value,
+type: inputs[1].value,
+price: inputs[2].value,
+img: inputs[3].value,
+stock: inputs[4].value
+};
+
+await fetch(`/admin/products/${productId}`, {
+method: 'PUT',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify(product)
+});
+fetchData('/admin/products', 'productsTableBody', buildProductRow);
+}
+
+// Initial Fetch Calls
+fetchData('/admin/users', 'usersTableBody', buildUserRow);
+fetchData('/admin/orders', 'ordersTableBody', buildOrderRow);
+fetchData('/admin/messages', 'messagesTableBody', buildMessageRow);
+fetchData('/admin/newsletter', 'newsletterTableBody', buildNewsletterRow);
+fetchData('/admin/products', 'productsTableBody', buildProductRow);
+</script>
+</body>
+</html>

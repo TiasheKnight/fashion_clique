@@ -182,20 +182,21 @@ def send_message():
 def submit_order():
     if 'user_id' not in session:
         return jsonify({'status': 'error', 'message': 'You must be logged in to place an order.'}), 401
-
+    
     data = request.get_json()
+    client = data.get('name')
     address = data.get('address')
     phone = data.get('phone')
     products = json.dumps(session.get('cart', []))  # Convert cart to JSON string
-    user_id = session['user_id']
+
 
     # Insert order into database
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("""
-        INSERT INTO orders (user_id, products, address, phone, fulfilled)
+        INSERT INTO orders (client, products, address, phone, fulfilled)
         VALUES (?, ?, ?, ?,'false')
-    """, (user_id, products, address, phone))
+    """, (client, products, address, phone))
     conn.commit()
     conn.close()
 
@@ -653,6 +654,101 @@ def admin_products():
         conn.commit()
         return jsonify({'success': True, 'message': 'Product deleted successfully.'})
 
+#dashboard routes
+def get_db_connection():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row  # So that we can access columns by name
+    return conn
+@app.route('/dashboard')
+def dashboard():
+    # Fetch users
+    conn = get_db_connection()
+    users = conn.execute('SELECT * FROM users').fetchall()
+
+    # Fetch orders where fulfilled = false
+    orders = conn.execute('SELECT * FROM orders WHERE fulfilled="false"').fetchall()
+
+    # Fetch messages where seen = false
+    messages = conn.execute('SELECT * FROM messages WHERE seen="false"').fetchall()
+
+    # Fetch newsletter emails
+    newsletter = conn.execute('SELECT * FROM newsletter').fetchall()
+
+    # Fetch products
+    products = conn.execute('SELECT * FROM products').fetchall()
+
+    conn.close()
+    
+    return render_template('admin.html', users=users, orders=orders, messages=messages, 
+                           newsletter=newsletter, products=products)
+
+# Add or remove user
+@app.route('/remove_user/<int:user_id>', methods=['POST'])
+def remove_user(user_id):
+    conn = get_db_connection()
+    conn.execute('DELETE FROM users WHERE user_id = ?', (user_id,))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('dashboard'))
+
+# Update order fulfillment status
+@app.route('/update_order/<int:order_id>', methods=['POST'])
+def update_order(order_id):
+    conn = get_db_connection()
+    conn.execute('UPDATE orders SET fulfilled="true" WHERE id = ?', (order_id,))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('dashboard'))
+
+# Update message seen status
+@app.route('/update_message/<int:message_id>', methods=['POST'])
+def update_message(message_id):
+    conn = get_db_connection()
+    conn.execute('UPDATE messages SET seen="true" WHERE id = ?', (message_id,))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('dashboard'))
+
+# Edit product details
+@app.route('/edit_product/<int:product_id>', methods=['POST'])
+def edit_product(product_id):
+    conn = get_db_connection()
+    name = request.form['name']
+    type_ = request.form['type']
+    price = request.form['price']
+    img = request.form['img']
+    stock = request.form['stock']
+
+    conn.execute('UPDATE products SET name=?, type=?, price=?, img=?, stock=? WHERE id=?', 
+                 (name, type_, price, img, stock, product_id))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('dashboard'))
+
+# Add a new product
+@app.route('/add_product', methods=['POST'])
+def add_product():
+    conn = get_db_connection()
+    name = request.form['name']
+    type_ = request.form['type']
+    price = request.form['price']
+    img = request.form['img']
+    stock = request.form['stock']
+
+    conn.execute('INSERT INTO products (name, type, price, img, stock) VALUES (?, ?, ?, ?, ?)', 
+                 (name, type_, price, img, stock))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('dashboard'))
+
+# Remove product
+@app.route('/remove_product/<int:product_id>', methods=['POST'])
+def remove_product(product_id):
+    conn = get_db_connection()
+    conn.execute('DELETE FROM products WHERE id = ?', (product_id,))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('dashboard'))
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)
