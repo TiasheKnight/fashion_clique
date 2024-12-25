@@ -108,6 +108,8 @@ function registerAccount() {
   const form = document.getElementById('register-form');
   const name = form['register-name'].value;
   const email = form['register-email'].value;
+  const phone = form['register-phone'].value;
+  const address = form['register-address'].value;
   const password = form['register-password'].value;
   const cPassword = form['register-confirm-password'].value;
 
@@ -126,7 +128,9 @@ function registerAccount() {
       const registrationData = {
           name: name,
           email: email,
-          password: password
+          password: password,
+          phone: phone,
+          address:address
       };
 
       fetch('/register', {
@@ -185,6 +189,13 @@ function sendMessage() {
   .then(data => {
     if (data.status === 'success') {
       console.log(data.message);
+      setTimeout(function() {
+        document.getElementById("successPopup").style.display = "flex";
+  
+        setTimeout(function() {
+            window.location.href = "/";  // Navigate to homepage
+        }, 1000);
+    });
       document.querySelector('form').reset();
     } else {
       console.log('Error: ' + data.message);
@@ -211,6 +222,7 @@ function updateCartCount(count) {
 // Adding a product to the cart
 function addToCart(productId, quantity) {
   // Send the request to the backend to add the product to the cart
+
   fetch('/add_to_cart', {
     method: 'POST',
     headers: {
@@ -226,11 +238,19 @@ function addToCart(productId, quantity) {
     if (data.success) {
       // Update the cart count in the circle after the product is added to the cart
       updateCartCount(data.cart_count);
+      setTimeout(function() {
+        document.getElementById("successPopup").style.display = "flex";
+    
+        setTimeout(function() {
+          document.getElementById("successPopup").style.display = "none";
+        }, 1000);
+    });
     }
   })
   .catch(error => {
     console.error('Error adding to cart:', error);
   });
+
 }
 
 // Show shipping confirmation popup
@@ -337,23 +357,46 @@ function Checkout() {
 
 
 // Newsletter submission
-function newsletter() {
-  setTimeout(function() {
-      document.getElementById("successPopup").style.display = "flex";
+function newsletter(event) {
+  event.preventDefault();  // Prevent the default form submission
 
+  const email = document.getElementById('email').value;
+
+  fetch('/newsletter', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      email: email,
+    }),
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.status === 'success') {
+      console.log(data.message);
       setTimeout(function() {
-          window.location.href = "/";  // Navigate to homepage
-      }, 1000);
-  }, 1000);
+        document.getElementById("successPopup").style.display = "flex";
+  
+        setTimeout(function() {
+          document.getElementById("successPopup").style.display = "none"; // Navigate to homepage
+        }, 1000);
+      }, 500);  // Added a delay before showing the success popup
+
+      document.querySelector('form').reset(); // Reset the form after successful submission
+    } else {
+      console.log('Error: ' + data.message);
+    }
+  })
+  .catch(error => console.error('Error:', error));
 }
 
-// Contact submission
-function contact() {
-  setTimeout(function() {
-      document.getElementById("successPopup").style.display = "flex";
 
-      setTimeout(function() {
-          window.location.href = "/";  // Navigate to homepage
-      }, 1000);
-  }, 1000);
-}
+// // Contact submission
+// function contact() {
+//   setTimeout(function() {
+//       document.getElementById("successPopup").style.display = "flex";
+
+//       setTimeout(function() {
+//           window.location.href = "/";  // Navigate to homepage
+//       }, 1000);
+//   }, 1000);
+// }

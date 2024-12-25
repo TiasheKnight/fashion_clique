@@ -844,9 +844,9 @@
     <section class="collection bg-light position-relative py-5">
       <div class="container">
         <div class="row">
-          <div class="title-xlarge text-uppercase txt-fx domino">
+          <!-- <div class="title-xlarge text-uppercase txt-fx domino">
             Collection
-          </div>
+          </div> -->
           <div class="collection-item d-flex flex-wrap my-5">
             <div class="col-md-6 column-container">
               <div class="image-holder">
@@ -1081,20 +1081,25 @@
                 Sign Up for our newsletter
               </h3>
             </div>
-            <form id="form" class="d-flex flex-wrap gap-2">
+            <form
+              id="form"
+              class="d-flex flex-wrap gap-2"
+              onsubmit="newsletter(event)"
+            >
               <input
                 type="text"
                 name="email"
-                placeholder="Your Email Addresss"
+                id="email"
+                placeholder="Your Email Address"
                 class="form-control form-control-lg"
               />
+              <button
+                type="submit"
+                class="btn btn-dark btn-lg text-uppercase w-100"
+              >
+                Sign Up
+              </button>
             </form>
-            <button
-              class="btn btn-dark btn-lg text-uppercase w-100"
-              onclick="newsletter()"
-            >
-              Sign Up
-            </button>
           </div>
         </div>
       </div>

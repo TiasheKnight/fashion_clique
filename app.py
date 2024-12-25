@@ -90,6 +90,8 @@ def register():
         # Extract fields from the request data
         name = data.get('name')
         email = data.get('email')
+        phone = data.get('phone')
+        address = data.get('address')
         password = data.get('password')
 
         # Validate the received data
@@ -116,8 +118,8 @@ def register():
         user_id = user_count + 1  # Set the new user_id to the next available number
 
         # Insert the new user into the database, including user_id
-        cursor.execute('''INSERT INTO users (user_id, username, email, password) 
-                          VALUES (?, ?, ?, ?)''', (user_id, name, email, hashed_password))
+        cursor.execute('''INSERT INTO users (user_id, username, email, phone, address, password) 
+                          VALUES (?, ?, ?, ?,?,?)''', (user_id, name, email, phone, address, hashed_password))
         conn.commit()
         conn.close()
 
@@ -129,6 +131,29 @@ def register():
 
 
     
+@app.route('/newsletter', methods=['POST'])
+def newsletter():
+    data = request.get_json()
+    email = data.get('email')
+
+    if not email:
+        return jsonify({'status': 'error', 'message': 'Email not written'}), 400
+
+    # Insert into database
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO newsletter (email) VALUES (?)",  # Add tuple parentheses
+            (email,)  # Added the comma to ensure it's treated as a tuple
+        )
+        conn.commit()
+        conn.close()
+        return jsonify({'status': 'success', 'message': 'Message sent successfully!'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+
 @app.route('/send_message', methods=['POST'])
 def send_message():
     data = request.get_json()
@@ -144,7 +169,7 @@ def send_message():
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
         cursor.execute(
-            "INSERT INTO messages (full_name, email, message) VALUES (?, ?, ?)",
+            "INSERT INTO messages (full_name, email, message, seen) VALUES (?, ?, ?,'false')",
             (full_name, email, message)
         )
         conn.commit()
@@ -152,7 +177,6 @@ def send_message():
         return jsonify({'status': 'success', 'message': 'Message sent successfully!'})
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
-
 
 @app.route('/submit_order', methods=['POST'])
 def submit_order():
@@ -169,8 +193,8 @@ def submit_order():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("""
-        INSERT INTO orders (user_id, products, address, phone)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO orders (user_id, products, address, phone, fulfilled)
+        VALUES (?, ?, ?, ?,'false')
     """, (user_id, products, address, phone))
     conn.commit()
     conn.close()
@@ -484,6 +508,148 @@ def pants():
 def index(): 
     return render_template('index.html')
 
+#admin routes
+@app.route('/admin')  
+def admin(): 
+    return render_template('admin.html')
+
+@app.route('/admin/data', methods=['GET'])
+def get_admin_data():
+    try:
+        # Connect to the database
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+
+        # Fetch Users
+        cursor.execute("SELECT user_id, username, email, phone, address FROM users")
+        users = [{'user_id': row[0], 'username': row[1], 'email': row[2], 'phone': row[3], 'address': row[4]} for row in cursor.fetchall()]
+
+        # Fetch Orders (only fulfilled=false)
+        cursor.execute("SELECT id, user_id, products, address, phone, created_at, fulfilled FROM orders WHERE fulfilled='false'")
+        orders = [{'id': row[0], 'user_id': row[1], 'products': row[2], 'address': row[3], 'phone': row[4], 'created_at': row[5], 'fulfilled': row[6]} for row in cursor.fetchall()]
+
+        # Fetch Messages (only seen=false)
+        cursor.execute("SELECT id, full_name, email, message, created_at, seen FROM messages WHERE seen='false'")
+        messages = [{'id': row[0], 'full_name': row[1], 'email': row[2], 'message': row[3], 'created_at': row[4], 'seen': row[5]} for row in cursor.fetchall()]
+
+        # Fetch Newsletter
+        cursor.execute("SELECT id, email FROM newsletter")
+        newsletter = [{'id': row[0], 'email': row[1]} for row in cursor.fetchall()]
+
+        # Fetch Products
+        cursor.execute("SELECT id, name, type, price, img, stock FROM products")
+        products = [{'id': row[0], 'name': row[1], 'type': row[2], 'price': row[3], 'img': row[4], 'stock': row[5]} for row in cursor.fetchall()]
+
+        # Close connection
+        conn.close()
+
+        # Return all data
+        return jsonify({'users': users, 'orders': orders, 'messages': messages, 'newsletter': newsletter, 'products': products})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/admin/users', methods=['GET', 'DELETE'])
+def admin_users():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    if request.method == 'GET':
+        # Fetch all users
+        cursor.execute('SELECT * FROM users')
+        users = cursor.fetchall()
+        return jsonify(users)
+    
+    if request.method == 'DELETE':
+        user_id = request.json.get('user_id')
+        cursor.execute('DELETE FROM users WHERE user_id = ?', (user_id,))
+        conn.commit()
+        return jsonify({'success': True, 'message': 'User deleted successfully.'})
+    
+@app.route('/admin/newsletter', methods=['GET', 'DELETE'])
+def admin_newsletter():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    if request.method == 'GET':
+        # Fetch all users
+        cursor.execute('SELECT * FROM newsletter')
+        users = cursor.fetchall()
+        return jsonify(users)
+    
+    if request.method == 'DELETE':
+        eid = request.json.get('id')
+        cursor.execute('DELETE FROM newsletter WHERE id = ?', (eid,))
+        conn.commit()
+        return jsonify({'success': True, 'message': 'email deleted successfully.'})
+
+@app.route('/admin/orders', methods=['GET', 'PUT'])
+def admin_orders():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    if request.method == 'GET':
+        # Fetch unfulfilled orders
+        cursor.execute('SELECT * FROM orders WHERE fulfilled = "false"')
+        orders = cursor.fetchall()
+        return jsonify(orders)
+
+    if request.method == 'PUT':
+        order_id = request.json.get('id')
+        cursor.execute('UPDATE orders SET fulfilled = "true" WHERE id = ?', (order_id,))
+        conn.commit()
+        return jsonify({'success': True, 'message': 'Order marked as fulfilled.'})
+
+@app.route('/admin/messages', methods=['GET', 'PUT'])
+def admin_messages():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    if request.method == 'GET':
+        # Fetch unseen messages
+        cursor.execute('SELECT * FROM messages WHERE seen = "false"')
+        messages = cursor.fetchall()
+        return jsonify(messages)
+
+    if request.method == 'PUT':
+        message_id = request.json.get('id')
+        cursor.execute('UPDATE messages SET seen = "true" WHERE id = ?', (message_id,))
+        conn.commit()
+        return jsonify({'success': True, 'message': 'Message marked as seen.'})
+
+@app.route('/admin/products', methods=['GET', 'POST', 'PUT', 'DELETE'])
+def admin_products():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    if request.method == 'GET':
+        # Fetch all products
+        cursor.execute('SELECT * FROM products')
+        products = cursor.fetchall()
+        return jsonify(products)
+
+    if request.method == 'POST':
+        # Add new product
+        data = request.json
+        cursor.execute('INSERT INTO products (name, type, price, img, stock) VALUES (?, ?, ?, ?, ?)', 
+                       (data['name'], data['type'], data['price'], data['img'], data['stock']))
+        conn.commit()
+        return jsonify({'success': True, 'message': 'Product added successfully.'})
+
+    if request.method == 'PUT':
+        # Update product
+        data = request.json
+        cursor.execute('UPDATE products SET name = ?, type = ?, price = ?, img = ?, stock = ? WHERE id = ?', 
+                       (data['name'], data['type'], data['price'], data['img'], data['stock'], data['id']))
+        conn.commit()
+        return jsonify({'success': True, 'message': 'Product updated successfully.'})
+
+    if request.method == 'DELETE':
+        product_id = request.json.get('id')
+        cursor.execute('DELETE FROM products WHERE id = ?', (product_id,))
+        conn.commit()
+        return jsonify({'success': True, 'message': 'Product deleted successfully.'})
+
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=80, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
