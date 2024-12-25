@@ -194,9 +194,9 @@ def submit_order():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("""
-        INSERT INTO orders (client, products, address, phone, fulfilled)
-        VALUES (?, ?, ?, ?,'false')
-    """, (client, products, address, phone))
+        INSERT INTO orders (client_id, client, products, address, phone, fulfilled)
+        VALUES (?, ?, ?, ?, ?,'false')
+    """, (session.get('user_id'), client, products, address, phone))
     conn.commit()
     conn.close()
 
@@ -473,7 +473,7 @@ def account():
         # Render the account page with user data
         return render_template('account.html', user_data=user_data)
     else:
-        return render_template('error.html', message="User not found")
+        return render_template('login.html', message="User not found")
     
 
 # Route for the register page
@@ -530,7 +530,12 @@ def get_admin_data():
 
         # Fetch Orders (only fulfilled=false)
         cursor.execute("SELECT id, user_id, products, address, phone, created_at, fulfilled FROM orders WHERE fulfilled='false'")
-        orders = [{'id': row[0], 'user_id': row[1], 'products': row[2], 'address': row[3], 'phone': row[4], 'created_at': row[5], 'fulfilled': row[6]} for row in cursor.fetchall()]
+        orders = [{'id': row[0], 'user_id': row[1], 'products': json.loads(row[2]), 'address': row[3], 'phone': row[4], 'created_at': row[5], 'fulfilled': row[6]} for row in cursor.fetchall()]
+        # Clean up products for each order
+        
+        for order in orders:
+            cleaned_products = [{"product_id": p["product_id"], "quantity": p["quantity"]} for p in order['products']]
+            order['products'] = cleaned_products  # Replace the 'products' field with the cleaned data
 
         # Fetch Messages (only seen=false)
         cursor.execute("SELECT id, full_name, email, message, created_at, seen FROM messages WHERE seen='false'")
@@ -548,7 +553,7 @@ def get_admin_data():
         conn.close()
 
         # Return all data
-        return jsonify({'users': users, 'orders': orders, 'messages': messages, 'newsletter': newsletter, 'products': products})
+        return jsonify({'users': users, 'orders': orders, 'messages': messages, 'newsletter': newsletter, 'products': products,})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -668,6 +673,33 @@ def dashboard():
     # Fetch orders where fulfilled = false
     orders = conn.execute('SELECT * FROM orders WHERE fulfilled="false"').fetchall()
 
+    # Create a new list to store the orders with parsed products
+    orders_new = []
+
+    for row in orders:  # Iterate over the rows in the 'orders' list
+        products_str = row[3]  # row[2] contains the products field as a JSON string
+        
+        # Check if products_str is not empty or null
+        if products_str and products_str.strip():  # Only try to parse if there's content
+            try:
+                # Parse the products JSON string into a Python list of dictionaries
+                products = json.loads(products_str)
+            except json.JSONDecodeError:
+                print(f"Error parsing products for order ID {row[0]}: {products_str}")
+                products = []  # Default to empty list if JSON is invalid
+        else:
+            products = []  # Default to empty list if products field is empty or null
+
+        # Append the order with parsed product data
+        orders_new.append({
+            'id': row[0],
+            'client': row[2],
+            'products': products,
+            'address': row[5],
+            'phone': row[6],
+            'created_at': row[7],
+            'fulfilled': row[8]
+        })               
     # Fetch messages where seen = false
     messages = conn.execute('SELECT * FROM messages WHERE seen="false"').fetchall()
 
@@ -677,78 +709,158 @@ def dashboard():
     # Fetch products
     products = conn.execute('SELECT * FROM products').fetchall()
 
+    #analytics dashboard
+
+       # Total sales (sum of all orders' price)
+    total_sales = conn.execute('''
+        SELECT SUM(total) AS total_sales FROM orders
+    ''').fetchone()
+
+    # Registered users count
+    total_users = conn.execute('SELECT COUNT(*) AS total_users FROM users').fetchone()
+
+    # Subscribed users count (from newsletter)
+    total_subscribed_users = conn.execute('SELECT COUNT(*) AS total_subscribed FROM newsletter').fetchone()
+
+    # Total products
+    total_products = conn.execute('SELECT COUNT(*) AS total_products FROM products').fetchone()
+
+    # Unread messages count
+    unread_messages = conn.execute('SELECT COUNT(*) AS unread_messages FROM messages WHERE seen="false"').fetchone()
+
+    # Unread unfulfilled Orders
+    unfulfilled_Orders = conn.execute('SELECT COUNT(*) AS total_unfulfilled_orders FROM orders WHERE fulfilled="false"').fetchone()
+
     conn.close()
     
-    return render_template('admin.html', users=users, orders=orders, messages=messages, 
-                           newsletter=newsletter, products=products)
+    return render_template('admin.html', users=users, orders=orders_new, messages=messages, 
+                           newsletter=newsletter, products=products, 
+                           total_sales=total_sales['total_sales'] or 0,
+                           total_users=total_users['total_users'] or 0,
+                           total_subscribed_users=total_subscribed_users['total_subscribed'] or 0,
+                           total_products=total_products['total_products'] or 0,
+                           unread_messages=unread_messages['unread_messages'] or 0,
+                           unfulfilled_Orders=unfulfilled_Orders['total_unfulfilled_orders'] or 0)
 
 # Add or remove user
 @app.route('/remove_user/<int:user_id>', methods=['POST'])
 def remove_user(user_id):
     conn = get_db_connection()
-    conn.execute('DELETE FROM users WHERE user_id = ?', (user_id,))
-    conn.commit()
-    conn.close()
-    return redirect(url_for('dashboard'))
+    try:
+        conn.execute('DELETE FROM users WHERE user_id = ?', (user_id,))
+        conn.commit()
+        conn.close()
+        return jsonify({"message": "removed user successfully.", "success": True})
+    except Exception as e:
+        print(e)
+        return jsonify({"message": "An error occurred.", "success": False}), 500    
 
 # Update order fulfillment status
 @app.route('/update_order/<int:order_id>', methods=['POST'])
 def update_order(order_id):
     conn = get_db_connection()
-    conn.execute('UPDATE orders SET fulfilled="true" WHERE id = ?', (order_id,))
-    conn.commit()
-    conn.close()
-    return redirect(url_for('dashboard'))
+    try:
+        conn.execute('UPDATE orders SET fulfilled="true" WHERE id = ?', (order_id,))
+        conn.commit()
+        conn.close()
+        return jsonify({"message": "order updated successfully.", "success": True})
+    except Exception as e:
+        print(e)
+        return jsonify({"message": "An error occurred.", "success": False}), 500    
 
 # Update message seen status
 @app.route('/update_message/<int:message_id>', methods=['POST'])
 def update_message(message_id):
     conn = get_db_connection()
-    conn.execute('UPDATE messages SET seen="true" WHERE id = ?', (message_id,))
-    conn.commit()
-    conn.close()
-    return redirect(url_for('dashboard'))
+    try:   
+        conn.execute('UPDATE messages SET seen="true" WHERE id = ?', (message_id,))
+        conn.commit()
+        conn.close()
+        return jsonify({"message": "messages updated successfully.", "success": True})
+    except Exception as e:
+        print(e)
+        return jsonify({"message": "An error occurred.", "success": False}), 500    
 
-# Edit product details
 @app.route('/edit_product/<int:product_id>', methods=['POST'])
 def edit_product(product_id):
-    conn = get_db_connection()
-    name = request.form['name']
-    type_ = request.form['type']
-    price = request.form['price']
-    img = request.form['img']
-    stock = request.form['stock']
+    data = request.get_json()
 
-    conn.execute('UPDATE products SET name=?, type=?, price=?, img=?, stock=? WHERE id=?', 
-                 (name, type_, price, img, stock, product_id))
-    conn.commit()
-    conn.close()
-    return redirect(url_for('dashboard'))
+    required_fields = ['name', 'type', 'price', 'img', 'stock']
+    for field in required_fields:
+        if field not in data or not data[field]:
+            return jsonify({"message": "Missing or invalid data.", "success": False}), 400
+
+    try:
+        # Update the database
+        query = """
+        UPDATE products 
+        SET name = ?, type = ?, price = ?, img = ?, stock = ? 
+        WHERE id = ?
+        """
+        values = (data['name'], data['type'], data['price'], data['img'], data['stock'], product_id)
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute(query, values)
+        conn.commit()
+        conn.close()
+        return jsonify({"message": "Product updated successfully.", "success": True})
+    except Exception as e:
+        print(e)
+        return jsonify({"message": "An error occurred.", "success": False}), 500    
+
 
 # Add a new product
 @app.route('/add_product', methods=['POST'])
 def add_product():
-    conn = get_db_connection()
-    name = request.form['name']
-    type_ = request.form['type']
-    price = request.form['price']
-    img = request.form['img']
-    stock = request.form['stock']
+    data = request.get_json()
 
-    conn.execute('INSERT INTO products (name, type, price, img, stock) VALUES (?, ?, ?, ?, ?)', 
-                 (name, type_, price, img, stock))
-    conn.commit()
-    conn.close()
-    return redirect(url_for('dashboard'))
+    required_fields = ['name', 'type', 'price', 'img', 'stock']
+    for field in required_fields:
+        if field not in data or not data[field]:
+            return jsonify({"message": "Missing or invalid data.", "success": False}), 400
+
+    try:
+        # Update the database
+        query = """
+        INSERT INTO products (name, type, price, img, stock) 
+        VALUES (?, ?, ?, ?, ?)
+        """
+        values = (data['name'], data['type'], data['price'], data['img'], data['stock'])
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute(query, values)
+        conn.commit()
+        conn.close()
+        return jsonify({"message": "Product updated successfully.", "success": True})
+    except Exception as e:
+        print(e)
+        return jsonify({"message": "An error occurred.", "success": False}), 500    
 
 # Remove product
 @app.route('/remove_product/<int:product_id>', methods=['POST'])
 def remove_product(product_id):
     conn = get_db_connection()
-    conn.execute('DELETE FROM products WHERE id = ?', (product_id,))
-    conn.commit()
-    conn.close()
-    return redirect(url_for('dashboard'))
+    try:
+        conn.execute('DELETE FROM products WHERE id = ?', (product_id,))
+        conn.commit()
+        conn.close()
+        return jsonify({"message": "Product removed successfully.", "success": True})
+    except Exception as e:
+        print(e)
+        return jsonify({"message": "An error occurred.", "success": False}), 500 
+
+@app.route('/remove_newsletter/<int:newsletter_id>', methods=['POST'])
+def remove_newsletter(newsletter_id):
+    conn = get_db_connection()
+    print('removing')
+    try:
+        conn.execute('DELETE FROM newsletter WHERE id = ?', (newsletter_id,))
+        conn.commit()
+        conn.close()
+        return jsonify({"message": "Product removed successfully.", "success": True})
+    except Exception as e:
+        print(e)
+        return jsonify({"message": "An error occurred.", "success": False}), 500 
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)

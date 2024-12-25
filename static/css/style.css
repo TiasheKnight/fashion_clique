@@ -1941,3 +1941,37 @@ a.btn-link.text-light:after {
   line-height: 20px; /* This ensures the number is vertically centered */
   margin-right: 8px; /* Adds some space between the circle and the word "Cart" */
 }
+
+/*sticky navbar*/
+  /* Sticky sidebar style */
+.sidebar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background-color: #f8f9fa;
+  padding: 20px;
+  box-shadow: 2px 0px 5px rgba(0,0,0,0.1);
+}
+
+/* Optional: Add margin to the right container to avoid overlap */
+.table-container {
+  margin-left: 260px; /* Adjust based on your sidebar width */
+}
+
+/*analytics panel*/
+.panel {
+  border: 1px solid #ddd;
+  padding: 20px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+.panel-heading {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+.panel-body {
+  font-size: 24px;
+  font-weight: bold;
+  color: #007bff;
+}

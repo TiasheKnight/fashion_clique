@@ -478,64 +478,131 @@
     </div>
 
     <nav
-      class="navbar navbar-expand-lg bg-light text-uppercase fs-6 p-3 border-bottom align-items-center"
+      class="navbar navbar-expand-lg bg-light text-uppercase fs-6 p-3 fixed-top border-bottom align-items-center"
     >
       <div class="container-fluid">
-        <div class="row justify-content-between align-items-center w-100">
-          <!-- Logo and Left Navbar Links -->
-          <div class="col-auto d-flex align-items-center gap-4">
-            <!-- Logo -->
-            <h4>FASHION CLIQUE</h4>
-
-            <!-- Left Navbar Links -->
-            <!-- <ul class="navbar-nav d-flex flex-row gap-4 mb-0">
-              <li class="nav-item">
-                <a class="nav-link" href="/index">Home</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="/top">Top</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="/dresses">Dresses</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="/pants">Pants</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link active" href="/contact">Contact</a>
-              </li>
-            </ul> -->
+        <div class="row justify-content-between align-items-center w-100 fixed-top bg-white shadow-sm py-2">
+            <!-- Logo and Left Navbar Links -->
+            <div class="col-auto d-flex align-items-center gap-4">
+              <!-- Logo -->
+              <h4>FASHION CLIQUE</h4>
+              <h5>Admin Dashboard</h5>
+              <!-- Left Navbar Links -->
+               </div>
+              <div class="col-auto">
+              <ul class="navbar-nav d-flex flex-row gap-4 col">
+                
+                <li class="nav-item">
+                  <a class="nav-link-active" href="#summary">Summary</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link-active" href="#users">Users</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link-active" href="#orders">Orders</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link-active" href="#messages">Messages</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link-active" href="#newsletter">Newsletter</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link-active" href="#products">Products</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link-active" href="/login_P">Logout</a>
+                </li>
+              </ul>   
+                                                        
+            </div>
+          
+            <!-- Right Navbar Link (optional) -->
+            <!-- <div class="col-auto">
+                <ul class="navbar-nav d-flex flex-row gap-4">
+                  <li class="nav-item">
+                    <a class="nav-link active" href="/cart">
+                      <span id="cartCount" class="cart-circle">0</span> Cart
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a id="accountLink" class="nav-link" href="#">Account</a>
+                  </li>
+                </ul>
+              </div> -->
+            <!-- You can add the cart and account links here if necessary -->
           </div>
-
-          <!-- Right Navbar Link -->
-          <div class="col-auto">
-            <!-- <ul class="navbar-nav d-flex flex-row gap-4">
-              <li class="nav-item">
-                <a class="nav-link active" href="/cart">
-                  <span id="cartCount" class="cart-circle">0</span> Cart
-                </a>
-              </li>
-              <li class="nav-item">
-                <a id="accountLink" class="nav-link" href="#">Account</a>
-              </li>
-            </ul> -->
-          </div>
-        </div>
       </div>
     </nav>
+    <section id="summary" class="contact-section py-5 bg-light" style="min-height:100vh;">
+        <div class="container mt-5 ">
+          <h3>Analytics</h3>
+            <div class="row bg-white " >
+                
+                <div class="col-md-4 " style="margin-top:10px;">
+                    <!-- Total Sales Panel -->
+                    <div class="panel" >
+                        <div class="panel-heading">Total Sales</div>
+                        <div class="panel-body">${{ total_sales }}</div>
+                    </div>
+                </div>
+                <div class="col-md-4" style="margin-top:10px;">
+                    <!-- Registered Users Panel -->
+                    <div class="panel">
+                        <div class="panel-heading">Registered Users</div>
+                        <div class="panel-body">{{ total_users }}</div>
+                    </div>
+                </div>
 
-    <section class="contact-section py-5 bg-light">
+                <div class="col-md-4" style="margin-top:10px;">
+                    <!-- Unread Messages Panel -->
+                    <div class="panel">
+                        <div class="panel-heading">Unfulfilled Orders</div>
+                        <div class="panel-body">{{ unfulfilled_Orders}}</div>
+                    </div>
+                </div>
+            </div>
+    
+            <div class="row bg-white">
+                <div class="col-md-4">
+                    <!-- Total Products Panel -->
+                    <div class="panel">
+                        <div class="panel-heading">Total Products</div>
+                        <div class="panel-body">{{ total_products }}</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <!-- Subscribed Users Panel -->
+                    <div class="panel">
+                        <div class="panel-heading">Subscribed Users</div>
+                        <div class="panel-body">{{ total_subscribed_users }}</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <!-- Unread Messages Panel -->
+                    <div class="panel">
+                        <div class="panel-heading">Unread Messages</div>
+                        <div class="panel-body">{{ unread_messages }}</div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </section>
+
+    <section id="users" class="contact-section py-5 bg-light" style="min-height:100vh;">
         <div class="row" style="margin-left: 20px; width:95vw;">
             <!-- Left Column -->
               <!-- Users Table -->
               <h3>Users</h3>
-              <table class="table">
+              <table class="table bg-white">
                 <thead>
                   <tr>
                     <th>Name</th>
-                    <th>Data Type</th>
                     <th>Email</th>
                     <th>Phone</th>
+                    <th>Address</th>
                     <th>Action</th>
                   </tr>
                 </thead>
@@ -547,18 +614,18 @@
                     <td>{{ user.address }}</td>
                     <td>{{ user.phone }}</td>
                     <td>
-                      <form method="POST" action="{{ url_for('remove_user', user_id=user.user_id) }}">
-                        <button type="submit" class="btn btn-danger">Remove</button>
-                      </form>
+                      <button class="btn btn-danger" onclick="removeUser({{ user.user_id }}, this)">Remove</button>
                     </td>
                   </tr>
                   {% endfor %}
                 </tbody>
               </table>
-      
+            </section>
+
+            <section id="orders"class="contact-section py-5 bg-light" style="min-height:100vh;">
               <!-- Orders Table (only fulfilled="false") -->
-              <h3>Orders</h3>
-              <table class="table">
+              <h3 style="margin-left: 20px;">Orders</h3>
+              <table class="table bg-white" style="margin-left: 20px; width:95vw;">
                 <thead>
                   <tr>
                     <th>Order ID</th>
@@ -566,7 +633,6 @@
                     <th>Products</th>
                     <th>Address</th>
                     <th>Phone</th>
-                    <th>Fulfilled</th>
                     <th>Action</th>
                   </tr>
                 </thead>
@@ -575,28 +641,32 @@
                   <tr>
                     <td>{{ order.id }}</td>
                     <td>{{ order.client }}</td>
-                    <td>{{ order.products }}</td>
+                    <td>    
+                      <ul>
+                        {% for product in order.products %}
+                        <li>Product ID: {{ product.product_id }}, Quantity: {{ product.quantity }}</li>
+                      {% endfor %}
+                      </ul>
+                  </td>
                     <td>{{ order.address }}</td>
                     <td>{{ order.phone }}</td>
                     <td>
-                      <form method="POST" action="{{ url_for('update_order', order_id=order.id) }}">
-                        <input type="checkbox" name="fulfilled" onclick="this.form.submit()"> Fulfilled
-                      </form>
+                      <button class="btn btn-danger" onclick="updateOrder({{ order.id }}, this)">Complete Transaction</button>
                     </td>
                   </tr>
                   {% endfor %}
                 </tbody>
               </table>
-      
+              </section>
+              <section id="messages" class="contact-section py-5 bg-light" style="min-height:100vh;">
               <!-- Messages Table (only seen="false") -->
-              <h3>Messages</h3>
-              <table class="table">
+              <h3 style="margin-left: 20px;">Messages</h3>
+              <table class="table bg-white" style="margin-left: 20px; width:95vw;">
                 <thead>
                   <tr>
                     <th>Full Name</th>
                     <th>Email</th>
                     <th>Message</th>
-                    <th>Seen</th>
                     <th>Action</th>
                   </tr>
                 </thead>
@@ -607,35 +677,41 @@
                     <td>{{ message.email }}</td>
                     <td>{{ message.message }}</td>
                     <td>
-                      <form method="POST" action="{{ url_for('update_message', message_id=message.id) }}">
-                        <input type="checkbox" name="seen" onclick="this.form.submit()"> Seen
-                      </form>
+                      <button class="btn btn-danger" onclick="updateMessage({{ message.id }}, this)">Seen</button>
+                        
                     </td>
                   </tr>
                   {% endfor %}
                 </tbody>
               </table>
-      
+            </section>
+            <section id="newsletter" class="contact-section py-5 bg-light" style="min-height:100vh;">
               <!-- Newsletter Table -->
-              <h3>Newsletter</h3>
-              <table class="table">
+              <h3 style="margin-left: 20px;">Newsletter</h3>
+              <table class="table bg-white" style="margin-left: 20px; width:95vw;">
                 <thead>
-                  <tr>
+                    <tr>
+                        <th>id</th>
                     <th>Email</th>
                   </tr>
                 </thead>
                 <tbody>
                   {% for subscriber in newsletter %}
                   <tr>
+                    <td>{{ subscriber.id }}</td>
                     <td>{{ subscriber.email }}</td>
+                    <td>
+                      <button class="btn btn-danger" onclick="removeNewsletter({{ subscriber.id }}, this)">Remove</button>
+
+                    </td>
                   </tr>
                   {% endfor %}
                 </tbody>
               </table>
-
-      
-            <h3>Products</h3>
-              <table class="table" id="products-table">
+        </section>
+        <section id="products" class="contact-section py-5 bg-light" style="min-height:100vh;">
+            <h3 style="margin-left: 20px;">Products</h3>
+            <table class="table bg-white" id="products-table" style="margin-left: 20px; width:95vw;">
                 <thead>
                   <tr>
                     <th>id</th>
@@ -651,33 +727,32 @@
                   {% for product in products %}
                   <tr>
                     <td>{{ product.id }}</td>
-                    <td><input type="text" value="{{ product.name }}" disabled></td>
+                    <td><input id="name-{{ product.id }}" type="text" value="{{ product.name }}"></td>
                     <td>
-                      <select disabled>
+                      <select id="type-{{ product.id }}">
                         <option value="top" {% if product.type == 'top' %}selected{% endif %}>Top</option>
                         <option value="dress" {% if product.type == 'dress' %}selected{% endif %}>Dress</option>
                         <option value="pants" {% if product.type == 'pants' %}selected{% endif %}>Pants</option>
                       </select>
                     </td>
-                    <td><input type="text" value="{{ product.price }}" disabled></td>
-                    <td><input type="text" value="{{ product.img }}" disabled></td>
-                    <td><input type="text" value="{{ product.stock }}" disabled></td>
+                    <td><input id="price-{{ product.id }}" type="number" step="0.01" value="{{ product.price }}"></td>
+                    <td><input id="img-{{ product.id }}" type="text" value="{{ product.img }}"></td>
+                    <td><input id="stock-{{ product.id }}" type="number" min="0" value="{{ product.stock }}"></td>
                     <td>
-                      <button class="btn btn-warning edit-btn" onclick="editProduct({{ product.id }})">Edit</button>
-                    </td>
-                    <td>
-                      <form method="POST" action="{{ url_for('remove_product', product_id=product.id) }}" style="display:inline;">
-                        <button class="btn btn-danger" type="submit">Remove</button>
+                      <form method="POST" action="{{ url_for('edit_product', product_id=product.id) }}" style="display:inline;">
+                        <button class="btn btn-warning update-btn" type="submit">Update</button>
                       </form>
+                      <button class="btn btn-danger" onclick="removeProduct({{ product.id }}, this)">Remove</button>
                     </td>
                   </tr>
                   {% endfor %}
                 </tbody>
-              </table>
+              </table>              
               <button class="btn btn-primary" onclick="addRow()">Add Row</button>
             </div>
         </div>
     </section>
+    
 
     <!-- Success Popup (Initially Hidden) -->
     <div id="successPopup" class="success-popup" style="display: none">
@@ -710,55 +785,222 @@
             />
           </svg>
         </div>
-        <p>Your message has been sent</p>
+        <p >Action Successful</p>
       </div>
     </div>
     <script>
- function editProduct(productId) {
-      // Implement functionality to edit product
-    }
 
     function addRow() {
       const table = document.getElementById('products-table').getElementsByTagName('tbody')[0];
       const newRow = table.insertRow();
       newRow.innerHTML = `
-        <td><input type="text" value="" /></td>
-        <td>
-          <select>
+      <tr>
+    <td>id</td>
+        <td><input type="text" name="name" placeholder="Product Name" required /></td>
+    <td>
+        <select name="type" required>
+            <option value="" disabled selected>Select Type</option>
             <option value="top">Top</option>
             <option value="dress">Dress</option>
             <option value="pants">Pants</option>
-          </select>
-        </td>
-        <td><input type="text" value="" /></td>
-        <td><input type="text" value="" /></td>
-        <td><input type="text" value="" /></td>
-        <td>
-          <button class="btn btn-success" onclick="saveProduct(this)">Save</button>
-          <button class="btn btn-danger" onclick="removeRow(this)">Remove</button>
-        </td>
+        </select>
+    </td>
+    <td><input type="number" name="price" step="0.01" placeholder="Price" required /></td>
+    <td><input type="text" name="img" placeholder="Image_URL" required /></td>
+    <td><input type="number" name="stock" min="0" placeholder="Stock Count" required /></td>
+    <td>
+        <form method="POST" action="/add_product" style="display:inline;">
+            <button class="btn btn-warning update-btn" type="submit" onclick="saveProduct(this)">Save</button>
+        </form>
+        <button class="btn btn-danger" onclick="removeRow(this)">Remove</button>
+    </td>
+    </tr>
       `;
     }
 
     function removeRow(button) {
-      const row = button.closest('tr');
+        var row = button.closest('tr');
+    
+        // Add a fade-out animation before removing the row
+        row.classList.add('animate__fadeOutRight'); // Add an exit animation (optional)
+    
+        // Remove the row after the animation duration (optional delay for smooth animation)
+        setTimeout(function() {
+        row.remove();
+        }, 500);
+    }
+
+    document.querySelectorAll('.update-btn').forEach(button => {
+    button.addEventListener('click', function (e) {
+    e.preventDefault();
+
+    const row = this.closest('tr');
+    const productId = row.querySelector('td').textContent.trim();
+    const name = document.getElementById(`name-${productId}`).value.trim();
+    const type = document.getElementById(`type-${productId}`).value.trim();
+    const price = parseFloat(document.getElementById(`price-${productId}`).value.trim());
+    const img = document.getElementById(`img-${productId}`).value.trim();
+    const stock = parseInt(document.getElementById(`stock-${productId}`).value.trim(), 10);
+
+    const payload = {
+      id: productId,
+      name,
+      type,
+      price,
+      img,
+      stock
+    };
+
+    fetch(`/edit_product/${productId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+            // Show the success popup
+              document.getElementById("successPopup").style.display = "flex";
+
+              // Redirect to the login page after 2 seconds
+              setTimeout(function() {
+                window.location.reload();   // Navigate to login page
+              }, 2000);
+        } else {
+          alert(data.message || 'Error updating product.');
+        }
+      })
+      .catch(error => console.error('Error:', error));
+  });
+});
+
+
+function saveProduct(button) {
+  // Prevent default form submission behavior
+  const event = button.closest('form').event || window.event;
+  if (event) {
+    event.preventDefault();
+  }
+
+  // Get the parent row of the button
+  const row = button.closest('tr');
+  
+  // Get values from the row's inputs
+  const productName = row.querySelector('input[name="name"]').value.trim();
+  const productType = row.querySelector('select[name="type"]').value;
+  const productPrice = parseFloat(row.querySelector('input[name="price"]').value.trim());
+  const productImage = row.querySelector('input[name="img"]').value.trim();
+  const productStock = parseInt(row.querySelector('input[name="stock"]').value.trim(), 10);
+
+  // Validation
+  if (!productName || !productType || isNaN(productPrice) || !productImage || isNaN(productStock)) {
+    alert('Please fill out all fields correctly.');
+    return;
+  }
+
+  // Prepare the payload to send to the server
+  const payload = {
+    name: productName,
+    type: productType,
+    price: productPrice,
+    img: productImage,
+    stock: productStock
+  };
+
+  // Send the data to the server using fetch
+  fetch('/add_product', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+  .then(response => response.json())
+  .then(data => {
+   if (data.success) {
+      // Show the success popup
+        document.getElementById("successPopup").style.display = "flex";
+
+        // Redirect to the login page after 2 seconds
+        setTimeout(function() {
+          window.location.reload(); // or update the table dynamically
+        }, 2000); 
+    } else {
+      alert('Error saving product: ' + data.message);
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Failed to save product.');
+  });
+}
+//-----------------------------------------------------
+    // Helper function for handling errors and updating the DOM
+function handleResponse(response, button) {
+  if (response.ok) {
+    document.getElementById("successPopup").style.display = "flex";
+
+  // Redirect to the login page after 2 seconds
+  setTimeout(function() {
+    document.getElementById("successPopup").style.display = "none"; // or update the table dynamically
+  }, 2000); 
+    // Remove the row or update DOM as needed
+    const row = button.closest('tr');
+    if (row) {
       row.remove();
     }
+  } else {
+    alert('An error occurred while performing the action.');
+  }
+}
 
-    function saveProduct(button) {
-      const row = button.closest('tr');
-      const inputs = row.getElementsByTagName('input');
-      const select = row.getElementsByTagName('select')[0];
+// Remove Newsletter
+function removeNewsletter(newsletterId, button) {
+  fetch(`/remove_newsletter/${newsletterId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  })
+    .then(response => handleResponse(response, button))
+    .catch(error => console.error('Error:', error));
+}
 
-      const newName = inputs[0].value;
-      const newPrice = inputs[2].value;
-      const newImg = inputs[3].value;
-      const newStock = inputs[4].value;
-      const newType = select.value;
+// Remove User
+function removeUser(userId, button) {
+  fetch(`/remove_user/${userId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  })
+    .then(response => handleResponse(response, button))
+    .catch(error => console.error('Error:', error));
+}
 
-      // Implement functionality to save new product data to the server or database
-      console.log('Save product:', newName, newPrice, newImg, newStock, newType);
-    }
+// Complete Transaction
+function updateOrder(orderId, button) {
+  fetch(`/update_order/${orderId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  })
+    .then(response => handleResponse(response, button))
+    .catch(error => console.error('Error:', error));
+}
+
+// Update Message
+function updateMessage(messageId, button) {
+  fetch(`/update_message/${messageId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  })
+    .then(response => handleResponse(response, button))
+    .catch(error => console.error('Error:', error));
+}
+
+// Remove Product
+function removeProduct(productId, button) {
+  fetch(`/remove_product/${productId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  })
+    .then(response => handleResponse(response, button))
+    .catch(error => console.error('Error:', error));
+}
 
     </script>
     <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
