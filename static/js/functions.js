@@ -39,7 +39,7 @@ function loginUser() {
             // Redirect to homepage
             document.getElementById("successPopup").style.display = "flex";
             setTimeout(function () {
-              window.location.reload();
+              window.location.href = '/';  // Navigate to homepage
             }, 2000);
         } else {
             ShowAlert('success','Something went wrong. Please try again later.'); // Show error message if login fails
