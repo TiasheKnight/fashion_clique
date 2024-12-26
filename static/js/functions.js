@@ -35,13 +35,16 @@ function loginUser() {
     .then(data => {
         if (data.success) {
             // Redirect to homepage
-            window.location.href = '/'; // Or to a dashboard page
+            document.getElementById("successPopup").style.display = "flex";
+            setTimeout(function () {
+              window.location.reload();
+            }, 2000);
         } else {
-            ShowAlert('success',data.message); // Show error message if login fails
+            ShowAlert('success','Something went wrong. Please try again later.'); // Show error message if login fails
         }
     })
     .catch(error => {
-      showAlert('Error:', error);
+      showAlert('Error:', 'Something went wrong. Please try again later.');
     });
   }
 
@@ -164,7 +167,7 @@ function registerAccount() {
               }, 2000);
           } else {
               // Show an error message if registration failed
-              showAlert("Registration failed. " + data.message);
+              showAlert("Registration failed. " ,'Something went wrong. Please try again later.');
           }
       })
       .catch(error => {
@@ -174,7 +177,7 @@ function registerAccount() {
       });
   } else {
       // Alert the user if not all fields are filled
-      showAlert(error, "Please fill in all account details.");
+      showAlert('error', "Please fill in all account details.");
   }
 }
 
@@ -202,14 +205,16 @@ function sendMessage() {
   
         setTimeout(function() {
             window.location.href = "/";  // Navigate to homepage
-        }, 1000);
+        }, 2000);
     });
       document.querySelector('form').reset();
     } else {
       showAlert('Error:', data.message);
+      console.log(data.message);
     }
   })
   .catch(error => showAlert('Error:', error));
+  console.log(error);
 }
 
 // Remove item from the list (example for cart or other list management)
@@ -219,7 +224,7 @@ function removeItem(button) {
 
   setTimeout(function() {
       row.remove();
-  }, 500); // Delay for animation
+  }, 1000); // Delay for animation
 }
   
 // Function to update the cart count in the circle
@@ -252,7 +257,7 @@ function addToCart(productId, quantity) {
         setTimeout(function() {
           document.getElementById("successPopup").style.display = "none";
         }, 1000);
-    });
+      }, 2000);
     }
   })
   .catch(error => {
@@ -277,7 +282,7 @@ function showShippingPopup() {
       setTimeout(function() {
         window.location.href = '/login_P';
       }, 1000);
-  });
+    });
     
     
     
@@ -352,7 +357,11 @@ function Checkout() {
 
         if (data.status === 'success') {
           console.log('Order placed successfully!');
-          window.location.reload();
+          document.getElementById("loadingPopup").style.display = "none";
+          document.getElementById("successPopup").style.display = "flex";
+          setTimeout(function () {
+            window.location.reload();
+          }, 3000);
           // Optionally, redirect or update the UI
         } else {
           console.log(`Error: ${data.message}`);
@@ -393,7 +402,7 @@ function newsletter(event) {
         setTimeout(function() {
           document.getElementById("successPopup").style.display = "none"; // Navigate to homepage
         }, 1000);
-      }, 1000);  // Added a delay before showing the success popup
+      }, 2000);  // Added a delay before showing the success popup
 
       document.querySelector('form').reset(); // Reset the form after successful submission
     } else {

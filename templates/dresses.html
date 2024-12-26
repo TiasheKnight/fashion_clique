@@ -791,7 +791,10 @@
 
           // Send the product ID and quantity to the server
           addToCart(productId, quantity);
-          window.location.reload();
+          document.getElementById("successPopup").style.display = "flex";
+          setTimeout(function () {
+            window.location.reload();
+          }, 2000);
         });
       });
     </script>

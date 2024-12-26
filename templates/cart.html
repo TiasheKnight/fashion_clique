@@ -773,7 +773,10 @@
             .then((response) => response.json())
             .then((data) => {
               if (data.success) {
-                window.location.href = "/cart";
+                document.getElementById("successPopup").style.display = "flex";
+                setTimeout(function () {
+                  window.location.reload();
+                }, 2000);
               } else {
                 window.location.href = "/cart";
                 console.log(data.error);
