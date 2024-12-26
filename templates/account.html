@@ -403,6 +403,7 @@
       editBtn.innerText = "Edit";
       const passwordInput = document.getElementById('account-password');
       passwordInput.value = '........';  // Set the value to something masked (or clear if desired)
+      const cPasswordInput = document.getElementById('account-password');
       cPasswordInput.value = '........'; 
     });
   </script>
@@ -412,6 +413,22 @@
     <div class="popup-loader-content">
       <p>Logging out...</p>
       <div class="loader"></div>
+    </div>
+  </div>
+  <!-- Success Popup (Initially Hidden) -->
+  <div id="successPopup-up" class="success-popup" style="display: none;">
+    <div class="popup-content">
+      <!-- Animated Checkmark with Circle -->
+      <div class="checkmark-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+          <!-- Circle -->
+          <circle class="circle" cx="50" cy="50" r="40" stroke="#3498db" stroke-width="6" fill="none" />
+          <!-- Checkmark -->
+          <path class="checkmark" fill="none" stroke="#3498db" stroke-width="6"
+          d="M 20 50 L 40 70 L 80 30" />
+        </svg>
+      </div>
+      <p>Logged out Successfully!</p>
     </div>
   </div>
 
@@ -441,8 +458,8 @@ document.getElementById("save-btn").addEventListener("click", function () {
     const phone = document.getElementById("account-phone").value;
     const address = document.getElementById("account-address").value;
     // const password = document.getElementById("account-password").value; 
-    const password = CryptoJS.SHA256(document.getElementById("account-password").value).toString();
-    const cPassword = CryptoJS.SHA256(document.getElementById("account-cPassword").value).toString();
+    const password = document.getElementById("account-password").value;
+    const cPassword = document.getElementById("account-cPassword").value;
     // Prepare the data to be sent to the server
     const formData = new FormData();
     formData.append("name", name);
@@ -451,12 +468,12 @@ document.getElementById("save-btn").addEventListener("click", function () {
     formData.append("address", address);
     if (password) {
       if (password==cPassword)
-        formData.append("password", password);
+        formData.append("password",  CryptoJS.SHA256(password).toString());
       else {
         alert('Password mismatch');
       }
     }
-
+    document.getElementById("loadingPopup").disabled = false;
     // Send the updated data to the server using fetch
     fetch('/update_account', {
         method: 'POST',
@@ -473,7 +490,8 @@ document.getElementById("save-btn").addEventListener("click", function () {
             document.getElementById("account-email").value = data.user_data.email;
             document.getElementById("account-phone").value = data.user_data.phone;
             document.getElementById("account-address").value = data.user_data.address;
-
+            document.getElementById("loadingPopup").disabled = true;
+            document.getElementById("successPopup-up").disabled = false;
             // Disable inputs and save button again after saving
             document.getElementById("account-name").disabled = true;
             document.getElementById("account-email").disabled = true;
@@ -485,6 +503,10 @@ document.getElementById("save-btn").addEventListener("click", function () {
             
             // Re-enable the edit button
             document.getElementById("edit-btn").disabled = false;
+            setTimeout(() => {
+              window.location.reload();
+            }, 2000);
+            
         } else {
             alert('Error saving changes: ' + data.message);
         }
