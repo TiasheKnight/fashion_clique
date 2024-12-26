@@ -300,7 +300,7 @@ document.querySelectorAll('.remove-item').forEach(button => {
             body: 'product_id=' + productId
         })
         .then(response => response.json())
-        .then( => {
+        .then( data=> {
             // Optionally, update the cart page or show a success message
             console.log('Product removed from cart!');
             location.reload();  // Reload the page to reflect changes
