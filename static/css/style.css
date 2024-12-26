@@ -483,23 +483,33 @@ button {
 .slideshow {
   overflow: hidden;
 }
+.swiper-slide {
+  width: auto; /* Let Swiper manage the width */
+  flex-shrink: 0;
+}
+.swiper-slide {
+  display: block;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
 
-/* .slideshow .swiper-slide {
+.slideshow .swiper-slide {
   background-position-x: -300px;
   transition: background-position-x 1.6s ease-out;
   background-repeat: no-repeat;background-size: cover;
 }
 .slideshow .swiper-slide.swiper-slide-active {
   background-position-x: 0px;
-} */
-.slideshow .swiper-slide {
+}
+/* .slideshow .swiper-slide {
   /* background-size: 100%; */
   background-position: center;
   background-origin: padding-box;
   background-repeat: no-repeat;
   background-size: cover;
   transition: background-size 1s ease-in-out;
-}
+} */
 
 /* .slideshow .swiper-slide.swiper-slide-active {
   background-size: 120%;

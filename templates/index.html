@@ -43,6 +43,19 @@
       src="{{ url_for('static', filename='js/functions.js') }}"
       defer
     ></script>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/vendor.css') }}"
+    />
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/plugins.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/SmoothScroll.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/script.min.js') }}"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -689,9 +702,10 @@
       </div>
     </section>
 
-    <!-- <section
+    <section
       id="new-arrival"
-      class="new-arrival product-carousel py-5 position-relative overflow-hidden bg-light">
+      class="new-arrival product-carousel py-5 position-relative overflow-hidden bg-light"
+    >
       <div class="container">
         <div
           class="d-flex flex-wrap justify-content-between align-items-center mb-3"
@@ -825,10 +839,13 @@
                 </div>
               </div>
             </div>
+            <!-- <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div> -->
           </div>
-          <div class="swiper-pagination"></div>
         </div>
-        <div class="icon-arrow icon-arrow-left">
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+        <!-- <div class="icon-arrow icon-arrow-left">
           <svg width="50" height="50" viewBox="0 0 24 24">
             <use xlink:href="#arrow-left"></use>
           </svg>
@@ -837,9 +854,9 @@
           <svg width="50" height="50" viewBox="0 0 24 24">
             <use xlink:href="#arrow-right"></use>
           </svg>
-        </div>
+        </div> -->
       </div>
-    </section> -->
+    </section>
 
     <section class="collection bg-light position-relative py-5">
       <div class="container">
@@ -919,7 +936,9 @@
       <div class="swiper testimonial-swiper overflow-hidden my-5">
         <div class="swiper-wrapper d-flex">
           <div class="swiper-slide">
-            <div class="testimonial-item text-center">
+            <div
+              class="testimonial-item text-center image-zoom-effect link-effect"
+            >
               <blockquote>
                 <p>
                   “More than expected crazy soft, flexible and best fitted white
@@ -930,7 +949,9 @@
             </div>
           </div>
           <div class="swiper-slide">
-            <div class="testimonial-item text-center">
+            <div
+              class="testimonial-item text-center image-zoom-effect link-effect"
+            >
               <blockquote>
                 <p>
                   “Best fitted white denim shirt more than expected crazy soft,
@@ -941,7 +962,9 @@
             </div>
           </div>
           <div class="swiper-slide">
-            <div class="testimonial-item text-center">
+            <div
+              class="testimonial-item text-center image-zoom-effect link-effect"
+            >
               <blockquote>
                 <p>
                   “Best fitted white denim shirt more white denim than expected
@@ -952,7 +975,9 @@
             </div>
           </div>
           <div class="swiper-slide">
-            <div class="testimonial-item text-center">
+            <div
+              class="testimonial-item text-center image-zoom-effect link-effect"
+            >
               <blockquote>
                 <p>
                   “Best fitted white denim shirt more than expected crazy soft,
@@ -962,11 +987,146 @@
               </blockquote>
             </div>
           </div>
+          <div class="swiper-slide">
+            <div
+              class="testimonial-item text-center image-zoom-effect link-effect"
+            >
+              <blockquote>
+                <p>
+                  “The quality is amazing! I’ve never felt more comfortable in a
+                  sweater.”
+                </p>
+                <div class="review-title text-uppercase">Cozy Haven</div>
+              </blockquote>
+            </div>
+          </div>
+
+          <div class="swiper-slide">
+            <div
+              class="testimonial-item text-center image-zoom-effect link-effect"
+            >
+              <blockquote>
+                <p>“Stylish, elegant, and durable. Worth every penny!”</p>
+                <div class="review-title text-uppercase">Fashion Forward</div>
+              </blockquote>
+            </div>
+          </div>
+
+          <div class="swiper-slide">
+            <div
+              class="testimonial-item text-center image-zoom-effect link-effect"
+            >
+              <blockquote>
+                <p>
+                  “I love the fit and the feel of this denim shirt. Perfect for
+                  any occasion.”
+                </p>
+                <div class="review-title text-uppercase">Denim Delight</div>
+              </blockquote>
+            </div>
+          </div>
+
+          <div class="swiper-slide">
+            <div
+              class="testimonial-item text-center image-zoom-effect link-effect"
+            >
+              <blockquote>
+                <p>“A must-have in your wardrobe. So soft and well-made!”</p>
+                <div class="review-title text-uppercase">
+                  Wardrobe Essential
+                </div>
+              </blockquote>
+            </div>
+          </div>
+
+          <div class="swiper-slide">
+            <div
+              class="testimonial-item text-center image-zoom-effect link-effect"
+            >
+              <blockquote>
+                <p>
+                  “The fabric is incredibly soft, and the design is timeless.”
+                </p>
+                <div class="review-title text-uppercase">Timeless Design</div>
+              </blockquote>
+            </div>
+          </div>
+
+          <div class="swiper-slide">
+            <div
+              class="testimonial-item text-center image-zoom-effect link-effect"
+            >
+              <blockquote>
+                <p>
+                  “Exceeded my expectations! Perfect blend of comfort and
+                  style.”
+                </p>
+                <div class="review-title text-uppercase">Style Icon</div>
+              </blockquote>
+            </div>
+          </div>
+
+          <div class="swiper-slide">
+            <div
+              class="testimonial-item text-center image-zoom-effect link-effect"
+            >
+              <blockquote>
+                <p>
+                  “I get compliments every time I wear it. Love the texture!”
+                </p>
+                <div class="review-title text-uppercase">Compliment Magnet</div>
+              </blockquote>
+            </div>
+          </div>
+
+          <div class="swiper-slide">
+            <div
+              class="testimonial-item text-center image-zoom-effect link-effect"
+            >
+              <blockquote>
+                <p>
+                  “This is the softest piece of clothing I own. Truly premium
+                  quality.”
+                </p>
+                <div class="review-title text-uppercase">Premium Feel</div>
+              </blockquote>
+            </div>
+          </div>
+
+          <div class="swiper-slide">
+            <div
+              class="testimonial-item text-center image-zoom-effect link-effect"
+            >
+              <blockquote>
+                <p>
+                  “Perfect for the season! Keeps me warm without compromising on
+                  style.”
+                </p>
+                <div class="review-title text-uppercase">Season Favorite</div>
+              </blockquote>
+            </div>
+          </div>
+
+          <div class="swiper-slide">
+            <div
+              class="testimonial-item text-center image-zoom-effect link-effect"
+            >
+              <blockquote>
+                <p>“High-quality material, excellent fit, and very stylish!”</p>
+                <div class="review-title text-uppercase">
+                  Highly Recommended
+                </div>
+              </blockquote>
+            </div>
+          </div>
         </div>
       </div>
       <div
         class="testimonial-swiper-pagination d-flex justify-content-center mb-5"
       ></div>
+      <!-- Navigation -->
+      <div class="swiper-button-next"></div>
+      <div class="swiper-button-prev"></div>
     </section>
 
     <section class="blog py-5 bg-light">
@@ -1363,6 +1523,74 @@
         <p>You have subscribed!</p>
       </div>
     </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const testimonialSwiper = new Swiper(".testimonial-swiper", {
+          slidesPerView: 1, // Number of slides visible at a time
+          spaceBetween: 20, // Space between slides
+          loop: true, // Enable infinite scrolling
+          autoplay: {
+            delay: 3000, // Time between slide transitions
+            disableOnInteraction: false, // Continue autoplay after interaction
+          },
+          pagination: {
+            el: ".swiper-pagination",
+            clickable: true, // Allow users to click the pagination dots
+          },
+          navigation: {
+            nextEl: ".swiper-button-next",
+            prevEl: ".swiper-button-prev",
+          },
+        });
+      });
+    </script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const swiper = new Swiper(".product-swiper", {
+          slidesPerView: 4,
+          spaceBetween: 20,
+          loop: true,
+          navigation: {
+            nextEl: ".swiper-button-next",
+            prevEl: ".swiper-button-prev",
+          },
+          breakpoints: {
+            640: {
+              slidesPerView: 1,
+            },
+            768: {
+              slidesPerView: 2,
+            },
+            1024: {
+              slidesPerView: 4,
+            },
+          },
+        });
+      });
+    </script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const testimonialSwiper = new Swiper(".testimonial-swiper", {
+          slidesPerView: 1, // Number of slides visible at a time
+          spaceBetween: 20, // Space between slides
+          loop: true, // Enable infinite scrolling
+          autoplay: {
+            delay: 3000, // Time between slide transitions
+            disableOnInteraction: false, // Continue autoplay after interaction
+          },
+          pagination: {
+            el: ".testimonial-swiper-pagination",
+            clickable: true, // Allow users to click the pagination dots
+          },
+          navigation: {
+            nextEl: ".swiper-button-next",
+            prevEl: ".swiper-button-prev",
+          },
+        });
+      });
+    </script>
+
     <script>
       // Function to fetch cart count from the backend
       function updateCartCount() {
