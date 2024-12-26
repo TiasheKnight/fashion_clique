@@ -418,13 +418,13 @@ def update_account():
         cursor.execute(""" 
             UPDATE users 
             SET username = ?, email = ?, phone = ?, address = ?, password = ? 
-            WHERE id = ? 
+            WHERE user_id = ? 
         """, (name, email, phone, address, hashed_password, user_id))
     else:
         cursor.execute("""
             UPDATE users 
             SET username = ?, email = ?, phone = ?, address = ?
-            WHERE id = ? 
+            WHERE user_id = ? 
         """, (name, email, phone, address, user_id))
     
     # Update session values
@@ -435,7 +435,7 @@ def update_account():
     conn.commit()
 
     # Fetch the updated data to return to the client
-    cursor.execute("SELECT username, email, phone, address FROM users WHERE id = ?", (user_id,))
+    cursor.execute("SELECT username, email, phone, address FROM users WHERE user_id = ?", (user_id,))
     updated_user_data = cursor.fetchone()
     conn.close()
 

@@ -344,6 +344,7 @@ function Checkout() {
 
         if (data.status === 'success') {
           console.log('Order placed successfully!');
+          window.location.reload();
           // Optionally, redirect or update the UI
         } else {
           console.log(`Error: ${data.message}`);
