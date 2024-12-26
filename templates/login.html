@@ -574,6 +574,27 @@
         </div>
       </div>
     </section>
+    <!-- The Popup -->
+    <div id="alert-popup" class="alert-popup" style="display: none">
+      <div class="alert-content">
+        <div class="alert alert-primary" role="alert" style="display: flex">
+          <div class="row">
+            <strong style="margin-left: 10px">type</strong>
+            <h6 style="margin-left: 10px">hi</h6>
+          </div>
+
+          <button
+            type="button"
+            class="close"
+            data-dismiss="alert"
+            aria-label="Close"
+            onclick="hideAlert()"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+      </div>
+    </div>
     <!-- Loading Popup (Initially Hidden) -->
     <div id="loadingPopup" class="loading-popup" style="display: none">
       <div class="popup-loader-content">
@@ -616,6 +637,7 @@
         <p>Logged in Successfully!</p>
       </div>
     </div>
+
     <script>
       // Function to fetch cart count from the backend
       function updateCartCount() {

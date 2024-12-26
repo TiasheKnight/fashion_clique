@@ -10,13 +10,13 @@ function loginUser() {
     // const password = passwordElement.value;
     const password = CryptoJS.SHA256(passwordElement.value).toString();
 
-    if (email=='admin'||password=='admin'){
+    if (email=='admin'&& password=='admin'){
       window.location.href = '/dashboard'; 
       return;  // Stop further execution if admin
     }
 
     if (!email || !password) {
-      alert('Please fill in both fields');
+      showAlert('error','Please fill in both fields');
       return;
     }
 
@@ -37,11 +37,11 @@ function loginUser() {
             // Redirect to homepage
             window.location.href = '/'; // Or to a dashboard page
         } else {
-            alert(data.message); // Show error message if login fails
+            ShowAlert('success',data.message); // Show error message if login fails
         }
     })
     .catch(error => {
-        console.error('Error:', error);
+      showAlert('Error:', error);
     });
   }
 
@@ -123,7 +123,7 @@ function registerAccount() {
   const cPassword = CryptoJS.SHA256(form['register-confirm-password'].value).toString();
   // Check if passwords match
   if (password !== cPassword) {
-      alert("Passwords do not match.");
+    showAlert("error","Passwords do not match.");
       return;
   }
 
@@ -164,17 +164,17 @@ function registerAccount() {
               }, 2000);
           } else {
               // Show an error message if registration failed
-              alert("Registration failed. " + data.message);
+              showAlert("Registration failed. " + data.message);
           }
       })
       .catch(error => {
           // Show error if request fails
-          alert("An error occurred during registration. Please try again.");
+          showAlert('error',"An error occurred during registration. Please try again.");
           console.log(error);
       });
   } else {
       // Alert the user if not all fields are filled
-      alert("Please fill in all account details.");
+      showAlert(error, "Please fill in all account details.");
   }
 }
 
@@ -206,10 +206,10 @@ function sendMessage() {
     });
       document.querySelector('form').reset();
     } else {
-      console.log('Error: ' + data.message);
+      showAlert('Error:', data.message);
     }
   })
-  .catch(error => console.error('Error:', error));
+  .catch(error => showAlert('Error:', error));
 }
 
 // Remove item from the list (example for cart or other list management)
@@ -271,13 +271,21 @@ function showShippingPopup() {
     document.getElementById("shippingPopup").style.display = "flex";
 } else {
     // User is not logged in, alert and redirect to login page
-    alert('Please log in first');
-    window.location.href = '/login';
+    setTimeout(function() {
+      showAlert('error','Please log in first');
+  
+      setTimeout(function() {
+        window.location.href = '/login_P';
+      }, 1000);
+  });
+    
+    
+    
 }
 })
 .catch(error => {
 console.error('Error:', error);
-alert('Something went wrong. Please try again later.');
+showAlert(error,'Something went wrong. Please try again later.');
 });
 }
 
@@ -367,7 +375,7 @@ function newsletter(event) {
   event.preventDefault();  // Prevent the default form submission
 
   const email = document.getElementById('email').value;
-
+  document.getElementById('email').value = '';  // Clear the email input field
   fetch('/newsletter', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -385,7 +393,7 @@ function newsletter(event) {
         setTimeout(function() {
           document.getElementById("successPopup").style.display = "none"; // Navigate to homepage
         }, 1000);
-      }, 500);  // Added a delay before showing the success popup
+      }, 1000);  // Added a delay before showing the success popup
 
       document.querySelector('form').reset(); // Reset the form after successful submission
     } else {
@@ -406,3 +414,41 @@ function newsletter(event) {
 //       }, 1000);
 //   }, 1000);
 // }
+
+// function showAlert(message) {
+//   // const alertElement = document.getElementById('alert');
+//   // alertElement.textContent = "Invalid credit card number";
+//   // Show the alert and hide it after 3 seconds
+//   // alertElement.style.display = 'block';
+//   // setTimeout(function() {
+//   //     alertElement.style.display = 'none';
+//   // }, 3000);
+//   const alertElement = document.getElementById('alert');
+//   // alertElement.querySelector('strong').textContent = type === 'error' ? 'Error!' : 'Success!';
+//   // alertElement.querySelector('strong').nextSibling.textContent = ' ' + message;
+//   alertElement.querySelector('strong').textContent = ' ' + message;
+//   // Show the alert and hide it after 3 seconds
+//   alertElement.style.display = 'block';
+//   setTimeout(function() {
+//       alertElement.style.display = 'none';
+//   }, 3000);
+// }
+
+function showAlert(type, message) {
+  const popup = document.getElementById('alert-popup');
+  const alertElement = popup.querySelector('.alert');
+  
+  // Change the alert message and type (success or error)
+  // alertElement.className = 'alert alert-' + type; // Update class for success/error styling
+  alertElement.querySelector('strong').textContent = type;
+  // alertElement.querySelector('strong').nextSibling.textContent = message;
+   alertElement.querySelector('h6').textContent = message;
+  // Show the popup
+  popup.style.display = 'block';
+}
+
+// Function to hide the popup
+function hideAlert() {
+  const popup = document.getElementById('alert-popup');
+  popup.style.display = 'none';
+}

@@ -490,7 +490,35 @@ def contact():
 @app.route('/dresses')
 def dresses():
     products = get_products("dress") 
-    return render_template('dresses.html', products=products)
+    # Ensure cart exists in the session
+    if 'cart' not in session:
+        session['cart'] = []
+
+    # Convert products to a dictionary for easy lookup
+    cart = session['cart']
+
+    # Process products to adjust stock based on the cart
+    updated_products = []
+    for product in products:
+        product_id = product[0]  # Extract product ID from the tuple
+        stock = product[5]  # Extract stock from the tuple
+        
+        # Check if the product exists in the cart
+        for item in cart:
+            if item['product_id'] == product_id:
+                stock = max(stock - item['quantity'], 0)  # Reduce stock, ensuring it's non-negative
+        
+        # Create a new tuple with updated stock
+        updated_product = (
+            product[0],  # ID
+            product[1],  # Name
+            product[2],  # Category
+            product[3],  # Price
+            product[4],  # Image
+            stock        # Updated stock
+        )
+        updated_products.append(updated_product)    
+    return render_template('dresses.html', products=updated_products)
 
 # Route for the login page
 @app.route('/login_P')
@@ -500,13 +528,73 @@ def login_P():
 # Route for the top page
 @app.route('/top')
 def top():
-    products = get_products("top") 
-    return render_template('top.html', products=products)
+    # Retrieve products (kept as tuples)
+    products = get_products("top")  # Assuming this returns a list of tuples
+
+    # Ensure cart exists in the session
+    if 'cart' not in session:
+        session['cart'] = []
+
+    # Convert products to a dictionary for easy lookup
+    cart = session['cart']
+
+    # Process products to adjust stock based on the cart
+    updated_products = []
+    for product in products:
+        product_id = product[0]  # Extract product ID from the tuple
+        stock = product[5]  # Extract stock from the tuple
+        
+        # Check if the product exists in the cart
+        for item in cart:
+            if item['product_id'] == product_id:
+                stock = max(stock - item['quantity'], 0)  # Reduce stock, ensuring it's non-negative
+        
+        # Create a new tuple with updated stock
+        updated_product = (
+            product[0],  # ID
+            product[1],  # Name
+            product[2],  # Category
+            product[3],  # Price
+            product[4],  # Image
+            stock        # Updated stock
+        )
+        updated_products.append(updated_product)    
+
+    return render_template('top.html', products=updated_products)
+
 
 @app.route('/pants') 
 def pants(): 
     products = get_products("pants") 
-    return render_template('pants.html', products=products)
+    # Ensure cart exists in the session
+    if 'cart' not in session:
+        session['cart'] = []
+
+    # Convert products to a dictionary for easy lookup
+    cart = session['cart']
+
+    # Process products to adjust stock based on the cart
+    updated_products = []
+    for product in products:
+        product_id = product[0]  # Extract product ID from the tuple
+        stock = product[5]  # Extract stock from the tuple
+        
+        # Check if the product exists in the cart
+        for item in cart:
+            if item['product_id'] == product_id:
+                stock = max(stock - item['quantity'], 0)  # Reduce stock, ensuring it's non-negative
+        
+        # Create a new tuple with updated stock
+        updated_product = (
+            product[0],  # ID
+            product[1],  # Name
+            product[2],  # Category
+            product[3],  # Price
+            product[4],  # Image
+            stock        # Updated stock
+        )
+        updated_products.append(updated_product)    
+    return render_template('pants.html', products=updated_products)
 
 @app.route('/index')  
 def index(): 

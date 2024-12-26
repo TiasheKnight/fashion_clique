@@ -1975,3 +1975,29 @@ a.btn-link.text-light:after {
   font-weight: bold;
   color: #007bff;
 }
+
+/* Styling for the popup */
+.alert-popup {
+  position: fixed;
+  top: 20px; /* Distance from the top of the screen */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999; /* Ensure it's on top of other elements */
+  display: none; /* Hide the popup initially */
+  width: 500px;
+}
+
+.alert-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 80%; /* You can adjust the width of the popup */
+}
+
+/* Optionally, you can style the alert to make it look more like a Bootstrap alert */
+.alert {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

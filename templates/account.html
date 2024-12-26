@@ -341,7 +341,24 @@
       </div>
     </div>
   </section>
+              <!-- The Popup -->
+              <div id="alert-popup" class="alert-popup" style="display: none;">
+                <div class="alert-content">
+                  
+                  <div class="alert alert-primary " role="alert" style="display: flex;">
+                    <div class="row">
+                    <strong style="margin-left: 10px;">type</strong>
+                    <h6 style="margin-left: 10px;">hi</h6>
   
+              </div>
+                      
+                      <button type="button" class="close" data-dismiss="alert" aria-label="Close" onclick="hideAlert()">
+                        <span aria-hidden="true">&times;</span>                      
+                    </button>            
+                    </div>
+                    
+                </div>
+              </div>
   <script>
     const editBtn = document.getElementById("edit-btn");
     const saveBtn = document.getElementById("save-btn");
@@ -389,6 +406,7 @@
       cPasswordInput.value = '........'; 
     });
   </script>
+
   <!-- Loading Popup (Initially Hidden) -->
   <div id="loadingPopup" class="loading-popup" style="display: none;">
     <div class="popup-loader-content">
@@ -448,6 +466,7 @@ document.getElementById("save-btn").addEventListener("click", function () {
     .then(data => {
         if (data.status === 'success') {
             console.log('Changes saved successfully!');
+            showAlert('success', 'Changes saved successfully!')
             
             // Optionally update the form values with the saved data
             document.getElementById("account-name").value = data.user_data.name;
