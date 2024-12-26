@@ -10,9 +10,11 @@ function loginUser() {
     // const password = passwordElement.value;
     const password = CryptoJS.SHA256(passwordElement.value).toString();
 
-    if (email=='admin'&& password=='admin'){
+    if (email=='admin'&& password==CryptoJS.SHA256('admin').toString()){
       window.location.href = '/dashboard'; 
       return;  // Stop further execution if admin
+    }else{
+      const password = CryptoJS.SHA256(passwordElement.value).toString();
     }
 
     if (!email || !password) {
