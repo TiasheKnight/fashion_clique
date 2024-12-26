@@ -200,13 +200,47 @@ def submit_order():
     """, (session.get('user_id'), client, products, total, address, phone))
     conn.commit()
     conn.close()
-
+    update_stock(session['cart'])
     # Clear the cart after placing an order
     clear_cart()
 
     return jsonify({'status': 'success', 'message': 'Order placed successfully!'})
 
 
+def update_stock(cart):
+    """
+    Updates the stock of products based on the items in the cart.
+
+    Args:
+        cart (list): A list of dictionaries representing cart items. 
+                     Each item should have 'product_id' and 'quantity' keys.
+    """
+    products = get_products(None)  # Fetch all products
+
+    # Connect to the database
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    
+    try:
+        for product in products:
+            product_id = product[0]  # Product ID
+            stock = product[5]      # Current stock
+            
+            # Find the corresponding item in the cart
+            for item in cart:
+                if item['product_id'] == product_id:
+                    new_stock = max(stock - item['quantity'], 0)
+                    
+                    # Update the stock in the database
+                    c.execute(
+                        "UPDATE products SET stock = ? WHERE id = ?",
+                        (new_stock, product_id)
+                    )
+                    break  # Exit the loop once the product is found
+        
+        conn.commit()  # Save changes
+    finally:
+        conn.close()  # Ensure the connection is closed
 
     
 # Function to get products from the database with type filter
@@ -218,6 +252,8 @@ def get_products(product_type):
     # If a product type is provided, filter by type
     if product_type:
         c.execute("SELECT * FROM products WHERE type=?", (product_type,))
+    else:
+        c.execute("SELECT * FROM products")  # Fetch all rows without filtering by type
         
     products = c.fetchall()  # Fetch all rows
     conn.close()
@@ -239,7 +275,7 @@ def add_to_cart():
         if isinstance(item, dict) and item.get('product_id') == int(product_id):
             item['quantity'] += quantity  # Update the quantity if the product is already in the cart
             product_found = True
-            break
+            break                                                                               
     
     if not product_found:
         # Add new product to the cart with the specified quantity
@@ -951,4 +987,4 @@ def remove_newsletter(newsletter_id):
         return jsonify({"message": "An error occurred.", "success": False}), 500 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000)

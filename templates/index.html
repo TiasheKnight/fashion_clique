@@ -727,7 +727,7 @@
 
                   <div class="product-content">
                     <h5 class="element-title text-uppercase fs-5 mt-3">
-                      <a href="/index">Dark florish onepiece</a>
+                      <a href="/index">floral onepiece</a>
                     </h5>
                     <a href="#" class="text-decoration-none"></a>
                   </div>
@@ -767,7 +767,7 @@
 
                   <div class="product-content">
                     <h5 class="text-uppercase fs-5 mt-3">
-                      <a href="/index">Off-white shirt</a>
+                      <a href="/index">Cotton tan shirt</a>
                     </h5>
                     <a href="#" class="text-decoration-none"></a>
                   </div>
@@ -1095,13 +1095,14 @@
             </div>
           </div>
         </div>
+        <!-- <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div> -->
       </div>
+
       <div
         class="testimonial-swiper-pagination d-flex justify-content-center mb-5"
       ></div>
       <!-- Navigation -->
-      <div class="swiper-button-next"></div>
-      <div class="swiper-button-prev"></div>
     </section>
 
     <section class="blog py-5 bg-light">
@@ -1499,25 +1500,26 @@
       </div>
     </div>
     <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        const testimonialSwiper = new Swiper(".testimonial-swiper", {
-          slidesPerView: 1, // Number of slides visible at a time
-          spaceBetween: 20, // Space between slides
-          loop: true, // Enable infinite scrolling
-          autoplay: {
-            delay: 3000, // Time between slide transitions
-            disableOnInteraction: false, // Continue autoplay after interaction
-          },
-          pagination: {
-            el: ".swiper-pagination",
-            clickable: true, // Allow users to click the pagination dots
-          },
-          navigation: {
-            nextEl: ".swiper-button-next",
-            prevEl: ".swiper-button-prev",
-          },
-        });
-      });
+      //   document.addEventListener("DOMContentLoaded", function () {
+      //     const testimonialSwiper = new Swiper(".testimonial-swiper", {
+      //       slidesPerView: 1, // Number of slides visible at a time
+      //       spaceBetween: 20, // Space between slides
+      //       loop: true, // Enable infinite scrolling
+      //       autoplay: {
+      //         delay: 3000, // Time between slide transitions
+      //         disableOnInteraction: false, // Continue autoplay after interaction
+      //       },
+      //       pagination: {
+      //         el: ".swiper-pagination",
+      //         clickable: true, // Allow users to click the pagination dots
+      //       },
+      //       navigation: {
+      //         nextEl: ".swiper-button-next",
+      //         prevEl: ".swiper-button-prev",
+      //       },
+      //     });
+      //   });
+      //
     </script>
 
     <script>
@@ -1547,11 +1549,11 @@
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         const testimonialSwiper = new Swiper(".testimonial-swiper", {
-          slidesPerView: 1, // Number of slides visible at a time
+          slidesPerView: 3, // Number of slides visible at a time
           spaceBetween: 20, // Space between slides
           loop: true, // Enable infinite scrolling
           autoplay: {
-            delay: 3000, // Time between slide transitions
+            delay: 1000, // Time between slide transitions
             disableOnInteraction: false, // Continue autoplay after interaction
           },
           pagination: {
@@ -1561,6 +1563,17 @@
           navigation: {
             nextEl: ".swiper-button-next",
             prevEl: ".swiper-button-prev",
+          },
+          breakpoints: {
+            640: {
+              slidesPerView: 1,
+            },
+            768: {
+              slidesPerView: 2,
+            },
+            1024: {
+              slidesPerView: 4,
+            },
           },
         });
       });
